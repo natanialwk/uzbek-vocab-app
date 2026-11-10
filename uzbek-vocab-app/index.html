@@ -1,0 +1,3815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乌兹别克语核心 300 词学习库 · A1-B2 分级与主题分类</title>
+  <!-- 引入 SheetJS 解析与导出 Excel 文件 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: #ecfdf5;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 20px 16px 60px; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* 顶部导航与标题 */
+    header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+    header h1 { font-size: 28px; font-weight: 800; color: #1e293b; margin-bottom: 8px; letter-spacing: -0.5px; }
+    header p { color: var(--text-muted); font-size: 14px; max-width: 650px; margin: 0 auto; line-height: 1.5; }
+
+    /* 模式切换 (列表 vs 抽认卡) */
+    .view-switcher { display: flex; justify-content: center; margin-bottom: 20px; }
+    .switch-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 12px; }
+    .switch-btn { padding: 9px 26px; border-radius: 9px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; color: #64748b; background: transparent; transition: all 0.2s; }
+    .switch-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+    /* 综合筛选控制台 */
+    .filter-panel { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .filter-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-label { font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 6px; }
+    
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill-btn { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #f8fafc; color: #475569; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .pill-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .pill-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 5px rgba(16,185,129,0.25); }
+    .pill-count { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: rgba(0,0,0,0.06); font-weight: 700; }
+    .pill-btn.active .pill-count { background: rgba(255,255,255,0.25); color: white; }
+
+    /* 动作操作栏 (搜索 + 按钮) */
+    .action-bar { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
+    .search-box { position: relative; flex: 1; min-width: 240px; }
+    .search-box input { width: 100%; padding: 10px 14px 10px 36px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .btn { padding: 9px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: white; border-color: var(--border); color: #334155; }
+    .btn-outline:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+    /* 状态与统计栏 */
+    .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .status-highlight { color: var(--primary-dark); font-weight: 700; }
+
+    /* CEFR 等级标签样式 */
+    .level-badge { padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; text-align: center; min-width: 28px; }
+    .level-A1 { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .level-A2 { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .level-B1 { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .level-B2 { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+
+    /* 视图 1：表格列表 */
+    .table-container { background: white; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 820px; }
+    th { background: #f8fafc; padding: 12px 16px; font-weight: 700; color: #475569; border-bottom: 1px solid var(--border); }
+    td { padding: 13px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background-color: #fbfdfc; }
+
+    .uzbek-word { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .speak-btn { background: #f0fdf4; border: 1px solid #bbf7d0; cursor: pointer; color: var(--primary-dark); font-size: 14px; padding: 3px 6px; border-radius: 6px; transition: all 0.2s; }
+    .speak-btn:hover { background: #dcfce7; transform: scale(1.05); }
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; display: inline-block; }
+    .example-uz { font-size: 13px; color: #334155; margin-bottom: 3px; font-weight: 500; }
+    .example-cn { font-size: 12px; color: #94a3b8; }
+
+    .action-icons { display: flex; gap: 8px; justify-content: center; align-items: center; }
+    .edit-btn { color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; transition: all 0.15s; }
+    .edit-btn:hover { background: #e0f2fe; color: #0369a1; }
+    .del-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 15px; opacity: 0.5; padding: 4px; }
+    .del-btn:hover { opacity: 1; }
+
+    /* 视图 2：抽认卡 (Flashcard) */
+    .flashcard-section { display: none; flex-direction: column; align-items: center; margin-top: 10px; }
+    .card-scene { width: 100%; max-width: 540px; height: 340px; perspective: 1000px; margin-bottom: 20px; }
+    .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border); background: white; }
+    .card-face.back { transform: rotateY(180deg); background: #fbfdfc; }
+
+    .card-header { display: flex; justify-content: space-between; align-items: center; }
+    .card-tags { display: flex; gap: 6px; align-items: center; }
+    .card-top-actions { display: flex; gap: 8px; align-items: center; }
+    .card-center { text-align: center; margin: auto 0; }
+    .card-uzbek { font-size: 34px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .card-chinese { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; }
+    .card-tip { text-align: center; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+    .card-tip kbd { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; font-size: 11px; color: #475569; font-weight: 600; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+
+    .card-controls { display: flex; gap: 14px; align-items: center; }
+    .ctrl-btn { background: white; border: 1px solid var(--border); border-radius: 50%; width: 50px; height: 50px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.06); transition: all 0.2s; }
+    .ctrl-btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+    .progress-info { font-size: 15px; font-weight: 700; color: #475569; min-width: 90px; text-align: center; }
+
+    /* 弹窗 */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; backdrop-filter: blur(2px); }
+    .modal { background: white; padding: 26px; border-radius: 14px; width: 100%; max-width: 480px; box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
+    .modal h3 { font-size: 19px; margin-bottom: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    .form-group input, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 22px; }
+      .card-scene { height: 320px; }
+      .card-uzbek { font-size: 28px; }
+      .card-chinese { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-badge">🇺🇿 Uzbek Language Mastery · 300 词</div>
+    <h1>乌兹别克语核心 300 词学习库</h1>
+    <p>CEFR 等级进阶 (A1 - B2) · 15 大实用主题分类 · 智能无重复导入 · 行内快速修改与 Excel 导出</p>
+  </header>
+
+  <!-- 模式切换 -->
+  <div class="view-switcher">
+    <div class="switch-container">
+      <button class="switch-btn active" id="btnListView" onclick="switchView('list')">📋 词汇列表</button>
+      <button class="switch-btn" id="btnCardView" onclick="switchView('card')">🗂️ 抽认卡刷词</button>
+    </div>
+  </div>
+
+  <!-- 综合筛选控制台 -->
+  <div class="filter-panel">
+    <!-- 等级筛选 (Level) -->
+    <div class="filter-row">
+      <div class="filter-label">🏷️ 按语言等级筛选 (CEFR Level):</div>
+      <div class="filter-pills" id="levelPills"></div>
+    </div>
+
+    <!-- 主题筛选 (Topic) -->
+    <div class="filter-row" style="margin-top: 10px;">
+      <div class="filter-label">📚 按实用主题筛选 (Topic / Category):</div>
+      <div class="filter-pills" id="categoryPills"></div>
+    </div>
+
+    <!-- 搜索与工具栏 -->
+    <div class="action-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索乌语、中文、例句...">
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="shuffleCurrentList()" title="随机打乱词序，背词更高效">🔀 随机排序</button>
+        <button class="btn btn-outline" onclick="exportToExcel()" title="导出当前词库到 Excel">📤 导出 Excel</button>
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
+        <button class="btn btn-outline" onclick="document.getElementById('excelFileInput').click()" title="批量导入表格（智能覆盖去重）">📥 导入 Excel</button>
+        <button class="btn btn-outline" onclick="resetToOfficialData()" title="清空并重置为官方 300 词">🔄 恢复默认</button>
+        <button class="btn btn-primary" onclick="openAddModal()">＋ 手动新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 状态统计栏 -->
+  <div class="status-bar">
+    <div>当前筛选：<span class="status-highlight" id="filterStatus">全部等级 · 全部主题</span></div>
+    <div>共找到 <span class="status-highlight" id="vocabCount">0</span> 条词汇</div>
+  </div>
+
+  <!-- 视图 1：表格列表 -->
+  <div class="table-container" id="listViewContainer">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 5%; text-align: center;">No.</th>
+          <th style="width: 19%;">乌兹别克语 (Latin)</th>
+          <th style="width: 18%;">中文释义 (简体)</th>
+          <th style="width: 8%; text-align: center;">等级</th>
+          <th style="width: 13%;">主题分类</th>
+          <th>实用例句与用法</th>
+          <th style="width: 12%; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="vocabTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- 视图 2：抽认卡 -->
+  <div class="flashcard-section" id="cardViewContainer">
+    <div class="card-scene">
+      <div class="card" id="flashcard" onclick="flipCard()">
+        <!-- 正面 -->
+        <div class="card-face front">
+          <div class="card-header">
+            <div class="card-tags">
+              <span class="level-badge" id="cardLevelFront">A1</span>
+              <span class="badge" id="cardCategoryFront">分类</span>
+              <span class="badge" id="cardTypeFront" style="background:#e0f2fe; color:#0369a1;">场景</span>
+            </div>
+            <div class="card-top-actions">
+              <button class="speak-btn" onclick="event.stopPropagation(); speakCardWord();" title="朗读发音">🔊 读音</button>
+              <button class="edit-btn" onclick="event.stopPropagation(); editCurrentCard();" title="快速修改当前卡片">✏️ 修改</button>
+            </div>
+          </div>
+          <div class="card-center">
+            <div class="card-uzbek" id="cardUzbekText">Salom</div>
+            <div style="font-size: 13px; color: #94a3b8;" id="cardContextFront">问候</div>
+          </div>
+          <div class="card-tip">点击翻面 👆 · 快捷键：<kbd>Space</kbd> 翻转 · <kbd>→</kbd> 下一个 · <kbd>←</kbd> 上一个 · <kbd>Enter</kbd> 读音</div>
+        </div>
+        <!-- 背面 -->
+        <div class="card-face back">
+          <div class="card-header">
+            <div class="card-tags">
+              <span class="level-badge" id="cardLevelBack">A1</span>
+              <span class="badge" id="cardCategoryBack">分类</span>
+            </div>
+            <div class="card-top-actions">
+              <button class="edit-btn" onclick="event.stopPropagation(); editCurrentCard();" title="快速修改当前卡片">✏️ 修改</button>
+            </div>
+          </div>
+          <div class="card-center">
+            <div class="card-chinese" id="cardChineseText">你好</div>
+            <div class="example-uz" id="cardExUz" style="margin-top: 14px;">Salom! Qandaysiz?</div>
+            <div class="example-cn" id="cardExCn">你好！你好吗？</div>
+          </div>
+          <div class="card-tip">点击翻回 👆 · 快捷键：<kbd>Space</kbd> 翻转 · <kbd>→</kbd> 下一个 · <kbd>←</kbd> 上一个</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 抽认卡切换控制条 -->
+    <div class="card-controls">
+      <button class="ctrl-btn" onclick="prevCard()" title="上一个 (←)">←</button>
+      <div class="progress-info" id="cardProgress">1 / 300</div>
+      <button class="ctrl-btn" onclick="nextCard()" title="下一个 (→)">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- 词汇新增 / 快速修改通用弹窗 -->
+<div class="modal-overlay" id="wordModal">
+  <div class="modal">
+    <h3 id="modalTitle">＋ 新增乌语词汇 / 常用语</h3>
+    <input type="hidden" id="editItemTarget">
+    <div class="form-group">
+      <label>乌兹别克语 (Latin)</label>
+      <input type="text" id="modalUzbek" placeholder="例如：Quyoshli">
+    </div>
+    <div class="form-group">
+      <label>中文释义 (简体)</label>
+      <input type="text" id="modalChinese" placeholder="例如：晴朗的、出太阳">
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <div class="form-group" style="flex: 1;">
+        <label>语言等级 (CEFR)</label>
+        <select id="modalLevel">
+          <option value="A1">A1 (入门级)</option>
+          <option value="A2">A2 (初级基础)</option>
+          <option value="B1">B1 (中级进阶)</option>
+          <option value="B2">B2 (中高级)</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label>分类 (Topic)</label>
+        <input type="text" id="modalCategory" placeholder="例如：餐饮饮食">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>词性 / 使用场景</label>
+      <input type="text" id="modalType" placeholder="例如：形容词、动词">
+    </div>
+    <div class="form-group">
+      <label>乌语实用例句 (选填)</label>
+      <input type="text" id="modalExUz" placeholder="例如：Bugun havo quyoshli.">
+    </div>
+    <div class="form-group">
+      <label>中文例句翻译 (选填)</label>
+      <input type="text" id="modalExCn" placeholder="例如：今天天气很晴朗。">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeWordModal()">取消</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveWordModal()">保存并应用</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 官方预置 300 句完整核心词库
+  const DEFAULT_VOCAB = [
+  {
+    "no": 1,
+    "uzbek": "Salom",
+    "chinese": "你好",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "问候",
+    "exUz": "Salom! Qandaysiz?",
+    "exCn": "你好！你好吗？"
+  },
+  {
+    "no": 2,
+    "uzbek": "Assalomu alaykum",
+    "chinese": "您好（正式敬语）",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "正式问候",
+    "exUz": "Assalomu alaykum, ustoz!",
+    "exCn": "老师，您好！"
+  },
+  {
+    "no": 3,
+    "uzbek": "Valaykum assalom",
+    "chinese": "您好（应答问候）",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "回应问候",
+    "exUz": "Valaykum assalom, xush kelibsiz!",
+    "exCn": "您好，欢迎光临！"
+  },
+  {
+    "no": 4,
+    "uzbek": "Xayrli tong",
+    "chinese": "早上好",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "时间问候",
+    "exUz": "Xayrli tong! Yaxshi dam oldingizmi?",
+    "exCn": "早上好！休息得好吗？"
+  },
+  {
+    "no": 5,
+    "uzbek": "Xayrli kun",
+    "chinese": "中午好 / 日安",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "时间问候",
+    "exUz": "Xayrli kun, aziz do'stlar!",
+    "exCn": "亲爱的朋友们，中午好！"
+  },
+  {
+    "no": 6,
+    "uzbek": "Xayrli kech",
+    "chinese": "晚上好",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "时间问候",
+    "exUz": "Xayrli kech! Ishlar qalay?",
+    "exCn": "晚上好！近来工作如何？"
+  },
+  {
+    "no": 7,
+    "uzbek": "Xayrli tun",
+    "chinese": "晚安",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "道别/祝愿",
+    "exUz": "Yaxshi yoting, xayrli tun!",
+    "exCn": "好梦，晚安！"
+  },
+  {
+    "no": 8,
+    "uzbek": "Xayr",
+    "chinese": "再见",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "道别",
+    "exUz": "Xayr, ertagacha!",
+    "exCn": "再见，明天见！"
+  },
+  {
+    "no": 9,
+    "uzbek": "Ko'rishguncha",
+    "chinese": "回头见 / 下次见",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "道别",
+    "exUz": "Ko'rishguncha, o'zingizni ehtiyot qiling!",
+    "exCn": "回头见，保重身体！"
+  },
+  {
+    "no": 10,
+    "uzbek": "Rahmat",
+    "chinese": "谢谢",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "礼貌用语",
+    "exUz": "Katta rahmat!",
+    "exCn": "非常感谢！"
+  },
+  {
+    "no": 11,
+    "uzbek": "Tashakkur",
+    "chinese": "感谢（较正式）",
+    "level": "A2",
+    "category": "问候与礼貌",
+    "type": "礼貌用语",
+    "exUz": "E'tiboringiz uchun tashakkur!",
+    "exCn": "感谢您的关注！"
+  },
+  {
+    "no": 12,
+    "uzbek": "Arzimaydi",
+    "chinese": "不客气 / 不用谢",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "回应致谢",
+    "exUz": "Arzimaydi, yordam berishdan xursandman.",
+    "exCn": "不客气，很高兴能帮到你。"
+  },
+  {
+    "no": 13,
+    "uzbek": "Iltimos",
+    "chinese": "请 / 拜托",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "请求",
+    "exUz": "Iltimos, menga yordam bering.",
+    "exCn": "请帮帮我。"
+  },
+  {
+    "no": 14,
+    "uzbek": "Kechirasiz",
+    "chinese": "对不起 / 打扰一下",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "道歉/搭话",
+    "exUz": "Kechirasiz, bu yer bo'shmi?",
+    "exCn": "不好意思，这里有人坐吗？"
+  },
+  {
+    "no": 15,
+    "uzbek": "Uzr",
+    "chinese": "抱歉",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "轻微道歉",
+    "exUz": "Uzr, kechikdim.",
+    "exCn": "抱歉，我迟到了。"
+  },
+  {
+    "no": 16,
+    "uzbek": "Maylimi?",
+    "chinese": "可以吗？",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "征求许可",
+    "exUz": "Bu yerga o'tirsam maylimi?",
+    "exCn": "我可以坐这里吗？"
+  },
+  {
+    "no": 17,
+    "uzbek": "Marhamat",
+    "chinese": "请（请进/请坐）",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "礼貌招待",
+    "exUz": "Marhamat, ichkariga kiring.",
+    "exCn": "请进，快请进。"
+  },
+  {
+    "no": 18,
+    "uzbek": "Xush kelibsiz",
+    "chinese": "欢迎光临",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "欢迎",
+    "exUz": "O'zbekistonga xush kelibsiz!",
+    "exCn": "欢迎来到乌兹别克斯坦！"
+  },
+  {
+    "no": 19,
+    "uzbek": "Qandaysiz?",
+    "chinese": "你好吗？ / 您好吗？",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "日常关怀",
+    "exUz": "Assalomu alaykum, qandaysiz?",
+    "exCn": "您好，您近来好吗？"
+  },
+  {
+    "no": 20,
+    "uzbek": "Ishlar qalay?",
+    "chinese": "近况如何？",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "熟人寒暄",
+    "exUz": "Salom do'stim, ishlar qalay?",
+    "exCn": "嗨朋友，最近怎么样？"
+  },
+  {
+    "no": 21,
+    "uzbek": "Yaxshi",
+    "chinese": "好 / 挺好",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "状态回答",
+    "exUz": "Rahmat, hammasi yaxshi.",
+    "exCn": "谢谢，一切都好。"
+  },
+  {
+    "no": 22,
+    "uzbek": "Yomon emas",
+    "chinese": "还不错",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "状态回答",
+    "exUz": "Kayfiyatim yomon emas.",
+    "exCn": "心情还不错。"
+  },
+  {
+    "no": 23,
+    "uzbek": "Xudo xohlasa",
+    "chinese": "但愿顺利（口头语）",
+    "level": "A2",
+    "category": "问候与礼貌",
+    "type": "口头愿景",
+    "exUz": "Ertaga uchrashamiz, xudo xohlasa.",
+    "exCn": "如果顺利的话，我们明天见面。"
+  },
+  {
+    "no": 24,
+    "uzbek": "Xudoga shukur",
+    "chinese": "谢天谢地（一切安好）",
+    "level": "A2",
+    "category": "问候与礼貌",
+    "type": "日常口语",
+    "exUz": "Xudoga shukur, sog'-omonmiz.",
+    "exCn": "谢天谢地，我们都很平安健康。"
+  },
+  {
+    "no": 25,
+    "uzbek": "Omon bo'ling",
+    "chinese": "祝安康 / 保重",
+    "level": "A2",
+    "category": "问候与礼貌",
+    "type": "祝福语",
+    "exUz": "Katta rahmat, omon bo'ling!",
+    "exCn": "太感谢了，祝您平安！"
+  },
+  {
+    "no": 26,
+    "uzbek": "Tug'ilgan kuningiz bilan",
+    "chinese": "生日快乐",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "节日祝愿",
+    "exUz": "Tug'ilgan kuningiz bilan tabriklayman!",
+    "exCn": "祝您生日快乐！"
+  },
+  {
+    "no": 27,
+    "uzbek": "Tabriklayman",
+    "chinese": "祝贺 / 恭喜",
+    "level": "A2",
+    "category": "问候与礼貌",
+    "type": "祝贺",
+    "exUz": "Yangi yilingiz bilan tabriklayman!",
+    "exCn": "祝您新年快乐！"
+  },
+  {
+    "no": 28,
+    "uzbek": "Yoqimli ishtaha",
+    "chinese": "用餐愉快 / 祝好胃口",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "用餐祝愿",
+    "exUz": "Osh bo'lsin, yoqimli ishtaha!",
+    "exCn": "用餐愉快，慢慢享用！"
+  },
+  {
+    "no": 29,
+    "uzbek": "Oq yo'l",
+    "chinese": "一路顺风 / 旅途平安",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "出行祝愿",
+    "exUz": "Yaxshi borib keling, oq yo'l!",
+    "exCn": "祝出行顺利，一路平安！"
+  },
+  {
+    "no": 30,
+    "uzbek": "Sog' bo'ling",
+    "chinese": "祝你健康 / 保重",
+    "level": "A1",
+    "category": "问候与礼貌",
+    "type": "祝愿",
+    "exUz": "Har doim sog' bo'ling!",
+    "exCn": "祝您常保健康！"
+  },
+  {
+    "no": 31,
+    "uzbek": "Ismingiz nima?",
+    "chinese": "你叫什么名字？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "疑问句",
+    "exUz": "Salom, ismingiz nima?",
+    "exCn": "你好，你叫什么名字？"
+  },
+  {
+    "no": 32,
+    "uzbek": "Mening ismim...",
+    "chinese": "我的名字是...",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "陈述句",
+    "exUz": "Mening ismim Anvar.",
+    "exCn": "我的名字叫安瓦尔。"
+  },
+  {
+    "no": 33,
+    "uzbek": "Familiyangiz nima?",
+    "chinese": "你的姓氏是什么？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "疑问句",
+    "exUz": "Familiyangiz nima, janob?",
+    "exCn": "先生，请问您贵姓？"
+  },
+  {
+    "no": 34,
+    "uzbek": "Tanishganimdan xursandman",
+    "chinese": "很高兴认识你",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "礼貌应答",
+    "exUz": "Men ham tanishganimdan xursandman.",
+    "exCn": "我也很高兴认识你。"
+  },
+  {
+    "no": 35,
+    "uzbek": "Qayerdansiz?",
+    "chinese": "你来自哪里？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "疑问句",
+    "exUz": "Siz qayerdansiz?",
+    "exCn": "请问您来自哪里？"
+  },
+  {
+    "no": 36,
+    "uzbek": "Men Xitoydanman",
+    "chinese": "我来自中国",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "国籍出身",
+    "exUz": "Men Xitoydan keldim.",
+    "exCn": "我来自中国。"
+  },
+  {
+    "no": 37,
+    "uzbek": "Siz xitoylikmisiz?",
+    "chinese": "你是中国人吗？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "疑问句",
+    "exUz": "Ha, men xitoylikman.",
+    "exCn": "是的，我是中国人。"
+  },
+  {
+    "no": 38,
+    "uzbek": "Men o'zbekman",
+    "chinese": "我是乌兹别克人",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "国籍出身",
+    "exUz": "U kishi o'zbek.",
+    "exCn": "那位是乌兹别克人。"
+  },
+  {
+    "no": 39,
+    "uzbek": "Yoshingiz nechada?",
+    "chinese": "你几岁 / 多大年纪？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "询问年龄",
+    "exUz": "Ukam, yoshingiz nechada?",
+    "exCn": "小兄弟，你几岁了？"
+  },
+  {
+    "no": 40,
+    "uzbek": "Men yigirma yoshdaman",
+    "chinese": "我二十岁",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "陈述年龄",
+    "exUz": "Men bu yil yigirma yoshdaman.",
+    "exCn": "我今年二十岁。"
+  },
+  {
+    "no": 41,
+    "uzbek": "Kasbingiz nima?",
+    "chinese": "你的职业是什么？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "询问职业",
+    "exUz": "Kechirasiz, kasbingiz nima?",
+    "exCn": "打扰一下，请问您的职业是什么？"
+  },
+  {
+    "no": 42,
+    "uzbek": "Men talabaman",
+    "chinese": "我是大学生",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "职业身份",
+    "exUz": "Men universitetda talabaman.",
+    "exCn": "我是大学的学生。"
+  },
+  {
+    "no": 43,
+    "uzbek": "Men o'qituvchiman",
+    "chinese": "我是老师",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "职业身份",
+    "exUz": "U maktabda o'qituvchi.",
+    "exCn": "他在学校当老师。"
+  },
+  {
+    "no": 44,
+    "uzbek": "Men shifokorman",
+    "chinese": "我是医生",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "职业身份",
+    "exUz": "Mening dadam shifokor.",
+    "exCn": "我的爸爸是医生。"
+  },
+  {
+    "no": 45,
+    "uzbek": "Men muhandisman",
+    "chinese": "我是工程师",
+    "level": "A2",
+    "category": "自我介绍",
+    "type": "职业身份",
+    "exUz": "Akam muhandis bo'lib ishlaydi.",
+    "exCn": "我哥哥做工程师工作。"
+  },
+  {
+    "no": 46,
+    "uzbek": "Men ishchiman",
+    "chinese": "我是职员 / 工人",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "职业身份",
+    "exUz": "Kompaniyada oddiy ishchiman.",
+    "exCn": "在公司做普通职员。"
+  },
+  {
+    "no": 47,
+    "uzbek": "Siz qayerda yashaysiz?",
+    "chinese": "你住在哪里？",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "询问居所",
+    "exUz": "Siz hozir qayerda yashaysiz?",
+    "exCn": "你现在住在哪里？"
+  },
+  {
+    "no": 48,
+    "uzbek": "Men Toshkentda yashayman",
+    "chinese": "我住在塔什干",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "居所陈述",
+    "exUz": "Men Toshkent markazida yashayman.",
+    "exCn": "我住在塔什干市中心。"
+  },
+  {
+    "no": 49,
+    "uzbek": "Bu mening do'stim",
+    "chinese": "这是我的朋友",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "介绍他人",
+    "exUz": "Bu mening eng yaqin do'stim.",
+    "exCn": "这是我最好的朋友。"
+  },
+  {
+    "no": 50,
+    "uzbek": "Oila",
+    "chinese": "家庭 / 家人",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "名词",
+    "exUz": "Oilamiz juda katta.",
+    "exCn": "我们家是一个大家庭。"
+  },
+  {
+    "no": 51,
+    "uzbek": "Ota / Dada",
+    "chinese": "父亲 / 爸爸",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Dadam ishga ketdilar.",
+    "exCn": "爸爸去上班了。"
+  },
+  {
+    "no": 52,
+    "uzbek": "Ona / Oyi",
+    "chinese": "母亲 / 妈妈",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Oyim mazali taom pishirdilar.",
+    "exCn": "妈妈做了好吃的饭菜。"
+  },
+  {
+    "no": 53,
+    "uzbek": "Aka",
+    "chinese": "哥哥",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Mening bitta akam bor.",
+    "exCn": "我有一个哥哥。"
+  },
+  {
+    "no": 54,
+    "uzbek": "Uka",
+    "chinese": "弟弟",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Ukam maktabda o'qiydi.",
+    "exCn": "我弟弟在上学。"
+  },
+  {
+    "no": 55,
+    "uzbek": "Opa",
+    "chinese": "姐姐",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Opam turmushga chiqqan.",
+    "exCn": "我姐姐已经结婚了。"
+  },
+  {
+    "no": 56,
+    "uzbek": "Singil",
+    "chinese": "妹妹",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Singlim kitob o'qiyapti.",
+    "exCn": "我妹妹正在看书。"
+  },
+  {
+    "no": 57,
+    "uzbek": "Farzand / Bola",
+    "chinese": "孩子",
+    "level": "A1",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Uning ikki nafar bolasi bor.",
+    "exCn": "他有两个孩子。"
+  },
+  {
+    "no": 58,
+    "uzbek": "Turmush o'rtog'i",
+    "chinese": "配偶 / 爱人",
+    "level": "A2",
+    "category": "自我介绍",
+    "type": "亲属称谓",
+    "exUz": "Bu kishi mening turmush o'rtog'im.",
+    "exCn": "这位是我的爱人。"
+  },
+  {
+    "no": 59,
+    "uzbek": "Uylanganmisiz?",
+    "chinese": "你结婚了吗？（问男士）",
+    "level": "A2",
+    "category": "自我介绍",
+    "type": "日常交际",
+    "exUz": "Siz uylanganmisiz yoki bo'ydoqmi?",
+    "exCn": "您结婚了还是单身？"
+  },
+  {
+    "no": 60,
+    "uzbek": "Men turmush qurganman",
+    "chinese": "我已经结婚了",
+    "level": "A2",
+    "category": "自我介绍",
+    "type": "婚姻状态",
+    "exUz": "Ha, men turmush qurganman.",
+    "exCn": "是的，我已经成家了。"
+  },
+  {
+    "no": 61,
+    "uzbek": "Men",
+    "chinese": "我",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第一人称单数",
+    "exUz": "Men kitob o'qiyman.",
+    "exCn": "我看书。"
+  },
+  {
+    "no": 62,
+    "uzbek": "Sen",
+    "chinese": "你",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第二人称单数",
+    "exUz": "Sen qayerga ketyapsan?",
+    "exCn": "你去哪里？"
+  },
+  {
+    "no": 63,
+    "uzbek": "U",
+    "chinese": "他 / 她 / 它",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第三人称单数",
+    "exUz": "U juda aqlli inson.",
+    "exCn": "他是个很聪明的人。"
+  },
+  {
+    "no": 64,
+    "uzbek": "Biz",
+    "chinese": "我们",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第一人称复数",
+    "exUz": "Biz birga dars qilamiz.",
+    "exCn": "我们一起上课。"
+  },
+  {
+    "no": 65,
+    "uzbek": "Siz",
+    "chinese": "您 / 你们",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第二人称敬称/复数",
+    "exUz": "Siz choy ichasizmi?",
+    "exCn": "您喝茶吗？"
+  },
+  {
+    "no": 66,
+    "uzbek": "Ular",
+    "chinese": "他们 / 她们",
+    "level": "A1",
+    "category": "人称代词",
+    "type": "第三人称复数",
+    "exUz": "Ular uyga kelishdi.",
+    "exCn": "他们回家了。"
+  },
+  {
+    "no": 67,
+    "uzbek": "Bu",
+    "chinese": "这个",
+    "level": "A1",
+    "category": "指示代词",
+    "type": "近指",
+    "exUz": "Bu nima?",
+    "exCn": "这是什么？"
+  },
+  {
+    "no": 68,
+    "uzbek": "Shu",
+    "chinese": "这个 / 该...",
+    "level": "A1",
+    "category": "指示代词",
+    "type": "特指",
+    "exUz": "Shu kitobni menga bering.",
+    "exCn": "请把这本书给我。"
+  },
+  {
+    "no": 69,
+    "uzbek": "O'sha",
+    "chinese": "那个",
+    "level": "A1",
+    "category": "指示代词",
+    "type": "远指",
+    "exUz": "O'sha bino yangi qurildi.",
+    "exCn": "那栋楼是新建的。"
+  },
+  {
+    "no": 70,
+    "uzbek": "Kim",
+    "chinese": "谁",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Bu kim?",
+    "exCn": "这是谁？"
+  },
+  {
+    "no": 71,
+    "uzbek": "Nima",
+    "chinese": "什么",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Siz nima xohlaysiz?",
+    "exCn": "你想要什么？"
+  },
+  {
+    "no": 72,
+    "uzbek": "Qayerda",
+    "chinese": "在哪里",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Hojatxona qayerda?",
+    "exCn": "洗手间在哪里？"
+  },
+  {
+    "no": 73,
+    "uzbek": "Qachon",
+    "chinese": "什么时候",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Poyezd qachon keladi?",
+    "exCn": "火车什么时候到？"
+  },
+  {
+    "no": 74,
+    "uzbek": "Qanday",
+    "chinese": "怎样的 / 如何",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Bugun ob-havo qanday?",
+    "exCn": "今天天气怎么样？"
+  },
+  {
+    "no": 75,
+    "uzbek": "Nega / Nimaga",
+    "chinese": "为什么",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Nega kech qoldingiz?",
+    "exCn": "你为什么迟到了？"
+  },
+  {
+    "no": 76,
+    "uzbek": "Qancha / Nechta",
+    "chinese": "多少",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "数量疑问",
+    "exUz": "Bu qancha turadi?",
+    "exCn": "这个多少钱？"
+  },
+  {
+    "no": 77,
+    "uzbek": "Qaysi",
+    "chinese": "哪一个",
+    "level": "A1",
+    "category": "疑问代词",
+    "type": "疑问词",
+    "exUz": "Sizga qaysi rang yoqadi?",
+    "exCn": "你喜欢哪个颜色？"
+  },
+  {
+    "no": 78,
+    "uzbek": "Bor",
+    "chinese": "有 / 存在",
+    "level": "A1",
+    "category": "存在判断",
+    "type": "谓语词",
+    "exUz": "Bu yerda suv bormi?",
+    "exCn": "这里有水吗？"
+  },
+  {
+    "no": 79,
+    "uzbek": "Yo'q",
+    "chinese": "没有 / 不是",
+    "level": "A1",
+    "category": "存在判断",
+    "type": "否定词",
+    "exUz": "Menda pul yo'q.",
+    "exCn": "我没有钱。"
+  },
+  {
+    "no": 80,
+    "uzbek": "Ha",
+    "chinese": "是的 / 对",
+    "level": "A1",
+    "category": "肯定应答",
+    "type": "应答词",
+    "exUz": "Ha, tushundim.",
+    "exCn": "是的，我明白了。"
+  },
+  {
+    "no": 81,
+    "uzbek": "Nol",
+    "chinese": "0 (零)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Nol daraja.",
+    "exCn": "零度。"
+  },
+  {
+    "no": 82,
+    "uzbek": "Bir",
+    "chinese": "1 (一)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Bir dona non bering.",
+    "exCn": "请给一个馕。"
+  },
+  {
+    "no": 83,
+    "uzbek": "Ikki",
+    "chinese": "2 (二)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Ikki kishi kelyapti.",
+    "exCn": "来了两个人。"
+  },
+  {
+    "no": 84,
+    "uzbek": "Uch",
+    "chinese": "3 (三)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Uch kun kutdim.",
+    "exCn": "我等了三天。"
+  },
+  {
+    "no": 85,
+    "uzbek": "To'rt",
+    "chinese": "4 (四)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Bir yilda to'rt fasl bor.",
+    "exCn": "一年有四个季节。"
+  },
+  {
+    "no": 86,
+    "uzbek": "Besh",
+    "chinese": "5 (五)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Besh daqiqa kuting.",
+    "exCn": "请等五分钟。"
+  },
+  {
+    "no": 87,
+    "uzbek": "Olti",
+    "chinese": "6 (六)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Olti soat ishladim.",
+    "exCn": "我工作了六个小时。"
+  },
+  {
+    "no": 88,
+    "uzbek": "Yetti",
+    "chinese": "7 (七)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Haftada yetti kun bor.",
+    "exCn": "一周有七天。"
+  },
+  {
+    "no": 89,
+    "uzbek": "Sakkiz",
+    "chinese": "8 (八)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Soat sakkizda boshlanadi.",
+    "exCn": "八点钟开始。"
+  },
+  {
+    "no": 90,
+    "uzbek": "To'qqiz",
+    "chinese": "9 (九)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "To'qqizinchi qavatda yashaydi.",
+    "exCn": "他住在九楼。"
+  },
+  {
+    "no": 91,
+    "uzbek": "O'n",
+    "chinese": "10 (十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "O'n so'm qoldi.",
+    "exCn": "还剩十苏姆。"
+  },
+  {
+    "no": 92,
+    "uzbek": "Yigirma",
+    "chinese": "20 (二十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Yigirma kishi yig'ildi.",
+    "exCn": "聚齐了二十个人。"
+  },
+  {
+    "no": 93,
+    "uzbek": "O'ttiz",
+    "chinese": "30 (三十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Harorat o'ttiz gradus.",
+    "exCn": "气温三十度。"
+  },
+  {
+    "no": 94,
+    "uzbek": "Qirq",
+    "chinese": "40 (四十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Qirq yoshga to'ldi.",
+    "exCn": "他满四十岁了。"
+  },
+  {
+    "no": 95,
+    "uzbek": "Ellik",
+    "chinese": "50 (五十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Ellik foiz chegirma bor.",
+    "exCn": "有五折优惠。"
+  },
+  {
+    "no": 96,
+    "uzbek": "Oltmish",
+    "chinese": "60 (六十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Bir soatda oltmish daqiqa bor.",
+    "exCn": "一小时有六十分钟。"
+  },
+  {
+    "no": 97,
+    "uzbek": "Yetmish",
+    "chinese": "70 (七十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Yetmishinchi uy shu yerda.",
+    "exCn": "第七十号房子在这里。"
+  },
+  {
+    "no": 98,
+    "uzbek": "Sakson",
+    "chinese": "80 (八十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Sakson yoshli chol.",
+    "exCn": "八十岁的老爷子。"
+  },
+  {
+    "no": 99,
+    "uzbek": "To'qson",
+    "chinese": "90 (九十)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "To'qson kilometr masofa.",
+    "exCn": "九十公里的路程。"
+  },
+  {
+    "no": 100,
+    "uzbek": "Yuz",
+    "chinese": "100 (一百)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Yuz dollar pulim bor.",
+    "exCn": "我有一百美元。"
+  },
+  {
+    "no": 101,
+    "uzbek": "Ming",
+    "chinese": "1000 (一千)",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "基数词",
+    "exUz": "Ming rahmat sizga!",
+    "exCn": "千言万语感谢您！"
+  },
+  {
+    "no": 102,
+    "uzbek": "Soat",
+    "chinese": "小时 / 钟表",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间名词",
+    "exUz": "Soat necha bo'ldi?",
+    "exCn": "现在几点了？"
+  },
+  {
+    "no": 103,
+    "uzbek": "Daqiqa / Minut",
+    "chinese": "分钟",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间名词",
+    "exUz": "O'n daqiqa qoldi.",
+    "exCn": "还剩十分钟。"
+  },
+  {
+    "no": 104,
+    "uzbek": "Sekund",
+    "chinese": "秒",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间名词",
+    "exUz": "Bir sekund kuting.",
+    "exCn": "请稍等一秒。"
+  },
+  {
+    "no": 105,
+    "uzbek": "Yarim",
+    "chinese": "半 / 一半",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "数量词",
+    "exUz": "Soat ikki yarim.",
+    "exCn": "两点半。"
+  },
+  {
+    "no": 106,
+    "uzbek": "Bugun",
+    "chinese": "今天",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Bugun dars yo'q.",
+    "exCn": "今天没有课。"
+  },
+  {
+    "no": 107,
+    "uzbek": "Kecha",
+    "chinese": "昨天",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Kecha yomg'ir yog'di.",
+    "exCn": "昨天下了雨。"
+  },
+  {
+    "no": 108,
+    "uzbek": "Ertaga",
+    "chinese": "明天",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Ertaga ob-havo qanday bo'ladi?",
+    "exCn": "明天天气会怎样？"
+  },
+  {
+    "no": 109,
+    "uzbek": "Hozir",
+    "chinese": "现在",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Hozir ketishim kerak.",
+    "exCn": "我现在必须走了。"
+  },
+  {
+    "no": 110,
+    "uzbek": "Keyin",
+    "chinese": "后来 / 之后",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Keyin gaplashamiz.",
+    "exCn": "回头我们再聊。"
+  },
+  {
+    "no": 111,
+    "uzbek": "Avval",
+    "chinese": "先 / 以前",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间副词",
+    "exUz": "Avval ovqatlanib olaylik.",
+    "exCn": "我们先吃点东西吧。"
+  },
+  {
+    "no": 112,
+    "uzbek": "Ertalab",
+    "chinese": "早晨 / 上午",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间段",
+    "exUz": "Ertalab sport bilan shug'ullanaman.",
+    "exCn": "我早晨做运动。"
+  },
+  {
+    "no": 113,
+    "uzbek": "Kunduzi / Tushda",
+    "chinese": "白天 / 中午",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间段",
+    "exUz": "Tushda havo ancha issiq.",
+    "exCn": "中午天气相当热。"
+  },
+  {
+    "no": 114,
+    "uzbek": "Kechqurun",
+    "chinese": "傍晚 / 晚上",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间段",
+    "exUz": "Kechqurun mehmonga boramiz.",
+    "exCn": "晚上我们去作客。"
+  },
+  {
+    "no": 115,
+    "uzbek": "Tunda",
+    "chinese": "夜里 / 深夜",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间段",
+    "exUz": "Tunda shamol kuchaydi.",
+    "exCn": "夜里刮起了大风。"
+  },
+  {
+    "no": 116,
+    "uzbek": "Kun",
+    "chinese": "天 / 日子",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间单位",
+    "exUz": "Bugun ajoyib kun bo'ldi.",
+    "exCn": "今天真是美好的一天。"
+  },
+  {
+    "no": 117,
+    "uzbek": "Hafta",
+    "chinese": "星期 / 周",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间单位",
+    "exUz": "Kelasi hafta dars boshlanadi.",
+    "exCn": "下周开始上课。"
+  },
+  {
+    "no": 118,
+    "uzbek": "Oy",
+    "chinese": "月份 / 月亮",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间单位",
+    "exUz": "Mart oyida havo soviydi.",
+    "exCn": "三月份天气会变冷。"
+  },
+  {
+    "no": 119,
+    "uzbek": "Yil",
+    "chinese": "年",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "时间单位",
+    "exUz": "Yangi yil muborak!",
+    "exCn": "新年快乐！"
+  },
+  {
+    "no": 120,
+    "uzbek": "Har doim",
+    "chinese": "总是 / 一直",
+    "level": "A1",
+    "category": "数字时间",
+    "type": "频度副词",
+    "exUz": "U har doim kulib turadi.",
+    "exCn": "他总是面带微笑。"
+  },
+  {
+    "no": 121,
+    "uzbek": "Ob-havo",
+    "chinese": "天气",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Toshkentda ob-havo juda yaxshi.",
+    "exCn": "塔什干的天气非常好。"
+  },
+  {
+    "no": 122,
+    "uzbek": "Fasl",
+    "chinese": "季节",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Sizning sevimli faslingiz qaysi?",
+    "exCn": "你最喜欢的季节是哪一个？"
+  },
+  {
+    "no": 123,
+    "uzbek": "Bahor",
+    "chinese": "春季",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Bahorda daraxtlar gullaydi.",
+    "exCn": "春天树木开花。"
+  },
+  {
+    "no": 124,
+    "uzbek": "Yoz",
+    "chinese": "夏季",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Yozda hamma dengizga boradi.",
+    "exCn": "夏天大家都去海边。"
+  },
+  {
+    "no": 125,
+    "uzbek": "Kuz",
+    "chinese": "秋季",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Kuz faslida yaproqlar sarg'ayadi.",
+    "exCn": "秋天树叶变黄。"
+  },
+  {
+    "no": 126,
+    "uzbek": "Qish",
+    "chinese": "冬季",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Qishda Toshkentda qor yog'adi.",
+    "exCn": "冬天塔什干会下雪。"
+  },
+  {
+    "no": 127,
+    "uzbek": "Quyosh",
+    "chinese": "太阳",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Quyosh charoqlab turibdi.",
+    "exCn": "太阳灿烂耀眼。"
+  },
+  {
+    "no": 128,
+    "uzbek": "Quyoshli",
+    "chinese": "晴天的 / 阳光明媚的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Bugun quyoshli va iliq kun.",
+    "exCn": "今天是一个晴朗而温暖的日子。"
+  },
+  {
+    "no": 129,
+    "uzbek": "Bulut",
+    "chinese": "云",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Osmonda oppoq bulutlar suzyapti.",
+    "exCn": "天空中飘着朵朵白云。"
+  },
+  {
+    "no": 130,
+    "uzbek": "Bulutli",
+    "chinese": "多云的 / 阴天的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Ertaga havo bulutli bo'ladi.",
+    "exCn": "明天天气会是多云。"
+  },
+  {
+    "no": 131,
+    "uzbek": "Qisman bulutli",
+    "chinese": "局部多云",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "短语",
+    "exUz": "Kunduzi qisman bulutli bo'lishi kutilmoqda.",
+    "exCn": "预计白天局部多云。"
+  },
+  {
+    "no": 132,
+    "uzbek": "Yomg'ir",
+    "chinese": "雨",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Kuchli yomg'ir yog'yapti.",
+    "exCn": "正下着大雨。"
+  },
+  {
+    "no": 133,
+    "uzbek": "Yomg'irli",
+    "chinese": "下雨的 / 多雨的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Bugun yomg'irli havo kutilmoqda.",
+    "exCn": "今天预计会有降雨天气。"
+  },
+  {
+    "no": 134,
+    "uzbek": "Qor",
+    "chinese": "雪",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Tog'larda qor yog'di.",
+    "exCn": "山里下雪了。"
+  },
+  {
+    "no": 135,
+    "uzbek": "Qorli",
+    "chinese": "下雪的 / 积雪的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Qorli qish kunlarini yaxshi ko'raman.",
+    "exCn": "我喜欢下雪的冬日。"
+  },
+  {
+    "no": 136,
+    "uzbek": "Shamol",
+    "chinese": "风",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Kuchli shamol esyapti.",
+    "exCn": "正刮着强风。"
+  },
+  {
+    "no": 137,
+    "uzbek": "Shamolli",
+    "chinese": "刮风的 / 多风的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Bugun ko'chada shamolli.",
+    "exCn": "今天外面风很大。"
+  },
+  {
+    "no": 138,
+    "uzbek": "Shabada",
+    "chinese": "微风 / 和风",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Bahorda yoqimli shabada esadi.",
+    "exCn": "春天吹着惬意的微风。"
+  },
+  {
+    "no": 139,
+    "uzbek": "Momaqaldiroq",
+    "chinese": "雷鸣 / 打雷",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Momaqaldiroq bo'lganda ehtiyot bo'ling.",
+    "exCn": "打雷时请务必小心。"
+  },
+  {
+    "no": 140,
+    "uzbek": "Chaqmoq",
+    "chinese": "闪电",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Osmonda chaqmoq chaqdi.",
+    "exCn": "天空中划过一道闪电。"
+  },
+  {
+    "no": 141,
+    "uzbek": "Issiq",
+    "chinese": "热的 / 炎热",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Choy juda issiq, shoshilmang.",
+    "exCn": "茶很烫，别着急。"
+  },
+  {
+    "no": 142,
+    "uzbek": "Sovuq",
+    "chinese": "冷的 / 寒冷",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Qishda havo juda sovuq.",
+    "exCn": "冬天天气非常寒冷。"
+  },
+  {
+    "no": 143,
+    "uzbek": "Iliq",
+    "chinese": "温暖的 / 温和的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Bahorda havo iliq bo'ladi.",
+    "exCn": "春天天气很暖和。"
+  },
+  {
+    "no": 144,
+    "uzbek": "Salqin",
+    "chinese": "凉爽的",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Soyada o'tiring, salqin ekan.",
+    "exCn": "坐在树荫下吧，挺凉快的。"
+  },
+  {
+    "no": 145,
+    "uzbek": "Dim",
+    "chinese": "闷热的",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Xona juda dim, derazani oching.",
+    "exCn": "房间很闷热，请打开窗户。"
+  },
+  {
+    "no": 146,
+    "uzbek": "Tuman",
+    "chinese": "雾",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Ertalab qalin tuman tushdi.",
+    "exCn": "清晨起了浓雾。"
+  },
+  {
+    "no": 147,
+    "uzbek": "Muz",
+    "chinese": "冰",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Yo'llar muzlab qolgan.",
+    "exCn": "路面已经结冰了。"
+  },
+  {
+    "no": 148,
+    "uzbek": "Kamalak",
+    "chinese": "彩虹",
+    "level": "A2",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Yomg'irdan keyin kamalak chiqdi.",
+    "exCn": "雨后出现了一道彩虹。"
+  },
+  {
+    "no": 149,
+    "uzbek": "Harorat / Gradus",
+    "chinese": "气温 / 温度",
+    "level": "A1",
+    "category": "天气与季节",
+    "type": "名词",
+    "exUz": "Havo harorati yigirma besh gradus.",
+    "exCn": "气温二十五度。"
+  },
+  {
+    "no": 150,
+    "uzbek": "O'zgaruvchan",
+    "chinese": "多变的 / 易变的",
+    "level": "B1",
+    "category": "天气与季节",
+    "type": "形容词",
+    "exUz": "Bugun ob-havo juda o'zgaruvchan.",
+    "exCn": "今天天气非常多变。"
+  },
+  {
+    "no": 151,
+    "uzbek": "Zilzila",
+    "chinese": "地震",
+    "level": "A2",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Kecha kichik zilzila bo'ldi.",
+    "exCn": "昨天发生了轻微地震。"
+  },
+  {
+    "no": 152,
+    "uzbek": "Suv toshqini / Sel",
+    "chinese": "洪水 / 泥石流",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Yomg'ir tufayli sel keldi.",
+    "exCn": "因暴雨引发了山洪。"
+  },
+  {
+    "no": 153,
+    "uzbek": "Qurg'oqchilik",
+    "chinese": "干旱",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Yozda qurg'oqchilik xavfi bor.",
+    "exCn": "夏天有干旱的风险。"
+  },
+  {
+    "no": 154,
+    "uzbek": "Dovul / Bo'ron",
+    "chinese": "暴风雨 / 狂风",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Dovul daraxtlarni yiqitdi.",
+    "exCn": "暴风吹倒了树木。"
+  },
+  {
+    "no": 155,
+    "uzbek": "Qor bo'roni",
+    "chinese": "暴风雪",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Qor bo'roni sababli yo'llar yopildi.",
+    "exCn": "因暴风雪封路了。"
+  },
+  {
+    "no": 156,
+    "uzbek": "O'rmon yong'ini",
+    "chinese": "森林火灾",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "O'rmon yong'inini o'chirishdi.",
+    "exCn": "扑灭了森林火灾。"
+  },
+  {
+    "no": 157,
+    "uzbek": "Tog' ko'chkisi",
+    "chinese": "山体滑坡",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Tog'da ko'chki sodir bo'ldi.",
+    "exCn": "山体发生滑坡塌方。"
+  },
+  {
+    "no": 158,
+    "uzbek": "Qor ko'chkisi",
+    "chinese": "雪崩",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Qishda tog'da qor ko'chkisi xavfi yuqori.",
+    "exCn": "冬天山里雪崩风险很高。"
+  },
+  {
+    "no": 159,
+    "uzbek": "Quyun",
+    "chinese": "龙卷风 / 旋风",
+    "level": "B2",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Kuchli quyun hamma narsani uchirib ketdi.",
+    "exCn": "强龙卷风刮走了一切。"
+  },
+  {
+    "no": 160,
+    "uzbek": "Tabiiy ofat",
+    "chinese": "自然灾害",
+    "level": "B1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Tabiiy ofatlardan saqlaning.",
+    "exCn": "做好自然灾害防范。"
+  },
+  {
+    "no": 161,
+    "uzbek": "Tog'",
+    "chinese": "高山 / 山脉",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Chimyon tog'larida dam oldik.",
+    "exCn": "我们在奇姆延山脉度假。"
+  },
+  {
+    "no": 162,
+    "uzbek": "Daryo",
+    "chinese": "河流",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Sirdaryo juda uzun daryo.",
+    "exCn": "锡尔河是一条很长的河流。"
+  },
+  {
+    "no": 163,
+    "uzbek": "Ko'l",
+    "chinese": "湖泊",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Chorvoq ko'li juda chiroyli.",
+    "exCn": "查尔瓦克湖非常美丽。"
+  },
+  {
+    "no": 164,
+    "uzbek": "Dengiz",
+    "chinese": "大海",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Orol dengizi qurib qolmoqda.",
+    "exCn": "咸海正在干涸萎缩。"
+  },
+  {
+    "no": 165,
+    "uzbek": "Shahar",
+    "chinese": "城市",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Samarqand qadimiy shahar.",
+    "exCn": "撒马尔罕是一座古老的城市。"
+  },
+  {
+    "no": 166,
+    "uzbek": "Qishloq",
+    "chinese": "乡村 / 村庄",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Bobom qishloqda yashaydi.",
+    "exCn": "我祖父住在农村。"
+  },
+  {
+    "no": 167,
+    "uzbek": "Ko'cha",
+    "chinese": "街道 / 马路",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Bu ko'chada mashinalar ko'p.",
+    "exCn": "这条街上车辆很多。"
+  },
+  {
+    "no": 168,
+    "uzbek": "Bino",
+    "chinese": "大楼 / 建筑物",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Yangi bino juda baland.",
+    "exCn": "新大楼非常高耸。"
+  },
+  {
+    "no": 169,
+    "uzbek": "Bog'",
+    "chinese": "花园 / 公园",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Bog'da sayr qilishni yaxshi ko'raman.",
+    "exCn": "我喜欢在公园散步。"
+  },
+  {
+    "no": 170,
+    "uzbek": "Maydon",
+    "chinese": "广场",
+    "level": "A1",
+    "category": "自然与环境",
+    "type": "名词",
+    "exUz": "Amir Temur maydoni markazda joylashgan.",
+    "exCn": "帖木儿广场位于市中心。"
+  },
+  {
+    "no": 171,
+    "uzbek": "Kiyim",
+    "chinese": "衣服 / 服装",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Issiq kiyim kiying.",
+    "exCn": "请穿厚衣服。"
+  },
+  {
+    "no": 172,
+    "uzbek": "Futbolka",
+    "chinese": "T恤",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Yozda ko'p futbolka kiyaman.",
+    "exCn": "夏天我经常穿T恤。"
+  },
+  {
+    "no": 173,
+    "uzbek": "Ko'ylak",
+    "chinese": "衬衫 / 连衣裙",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Oq ko'ylak kiyib oldi.",
+    "exCn": "他穿上了一件白衬衫。"
+  },
+  {
+    "no": 174,
+    "uzbek": "Shim",
+    "chinese": "长裤 / 裤子",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Qora shim sotib oldim.",
+    "exCn": "我买了一条黑色长裤。"
+  },
+  {
+    "no": 175,
+    "uzbek": "Shortik",
+    "chinese": "短裤",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Issiq havoda shortik kiyish qulay.",
+    "exCn": "热天穿短裤很舒服。"
+  },
+  {
+    "no": 176,
+    "uzbek": "Kurtka",
+    "chinese": "短夹克 / 厚外套",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Qishda qalin kurtka kiyish shart.",
+    "exCn": "冬天必须穿厚夹克外套。"
+  },
+  {
+    "no": 177,
+    "uzbek": "Sviter",
+    "chinese": "毛衣 / 针织衫",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Bu jun sviter juda issiq.",
+    "exCn": "这件羊毛衫非常保暖。"
+  },
+  {
+    "no": 178,
+    "uzbek": "Palto",
+    "chinese": "大衣 / 呢大衣",
+    "level": "A2",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Kuzda uzun palto kiyaman.",
+    "exCn": "秋天我穿长款大衣。"
+  },
+  {
+    "no": 179,
+    "uzbek": "Poyabzal / Oyoq kiyim",
+    "chinese": "鞋子",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Oyoq kiyimi qulay bo'lishi kerak.",
+    "exCn": "鞋子穿起来一定要舒服。"
+  },
+  {
+    "no": 180,
+    "uzbek": "Etik",
+    "chinese": "靴子 / 雨靴",
+    "level": "A2",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Qor yog'ganda etik kiying.",
+    "exCn": "下雪天请穿皮靴。"
+  },
+  {
+    "no": 181,
+    "uzbek": "Shippak",
+    "chinese": "拖鞋 / 凉拖",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Uyda shippak kiyaman.",
+    "exCn": "我在家里穿拖鞋。"
+  },
+  {
+    "no": 182,
+    "uzbek": "Paypoq",
+    "chinese": "袜子",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Iliq paypoq kiyib oling.",
+    "exCn": "穿上一双保暖的袜子吧。"
+  },
+  {
+    "no": 183,
+    "uzbek": "Sharf",
+    "chinese": "围巾",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Bo'yningizga sharf o'rang.",
+    "exCn": "脖子上系一条围巾。"
+  },
+  {
+    "no": 184,
+    "uzbek": "Qo'lqop",
+    "chinese": "手套",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Sovuqda qo'lqop taqish kerak.",
+    "exCn": "寒冷时要戴手套。"
+  },
+  {
+    "no": 185,
+    "uzbek": "Kepka",
+    "chinese": "鸭舌帽 / 棒球帽",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Quyoshda kepka kiyib oling.",
+    "exCn": "大太阳底下戴上棒球帽。"
+  },
+  {
+    "no": 186,
+    "uzbek": "Shlyapa",
+    "chinese": "草帽 / 礼帽",
+    "level": "A2",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Yozgi chiroyli shlyapa.",
+    "exCn": "漂亮精致的夏日遮阳帽。"
+  },
+  {
+    "no": 187,
+    "uzbek": "Ko'zoynak",
+    "chinese": "眼镜 / 墨镜",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Quyosh ko'zoynagi kerak.",
+    "exCn": "需要一副太阳墨镜。"
+  },
+  {
+    "no": 188,
+    "uzbek": "Soyabon",
+    "chinese": "雨伞",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Soyabon olishni unutmang, yomg'ir yog'adi.",
+    "exCn": "别忘了带雨伞，要下雨了。"
+  },
+  {
+    "no": 189,
+    "uzbek": "Sumka",
+    "chinese": "包 / 提包",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Sumkamda passportim bor.",
+    "exCn": "我的包里有我的护照。"
+  },
+  {
+    "no": 190,
+    "uzbek": "Soat (qo'l soati)",
+    "chinese": "手表",
+    "level": "A1",
+    "category": "服饰物品",
+    "type": "名词",
+    "exUz": "Qo'limda yangi soat bor.",
+    "exCn": "我手腕上戴着一块新表。"
+  },
+  {
+    "no": 191,
+    "uzbek": "Albatta",
+    "chinese": "当然 / 必定",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "肯定推断",
+    "exUz": "Albatta, men sizga yordam beraman.",
+    "exCn": "当然，我一定会帮助你。"
+  },
+  {
+    "no": 192,
+    "uzbek": "Shubhasiz",
+    "chinese": "毫无疑问",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "肯定推断",
+    "exUz": "U shubhasiz bu ishni uddalaydi.",
+    "exCn": "毫无疑问他能办成这事。"
+  },
+  {
+    "no": 193,
+    "uzbek": "Haqiqatan",
+    "chinese": "确实 / 的确",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "肯定推断",
+    "exUz": "Haqiqatan ham bu juda qiziq.",
+    "exCn": "确实，这真的非常有趣。"
+  },
+  {
+    "no": 194,
+    "uzbek": "Ehtimol",
+    "chinese": "可能 / 或许",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "推测怀疑",
+    "exUz": "Ehtimol, bugun kechqurun kelar.",
+    "exCn": "他可能今天傍晚会来。"
+  },
+  {
+    "no": 195,
+    "uzbek": "Balki",
+    "chinese": "也许 / 可能",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "推测怀疑",
+    "exUz": "Balki, ertaga teatrga borarmiz.",
+    "exCn": "也许我们明天会去剧院。"
+  },
+  {
+    "no": 196,
+    "uzbek": "Aftidan",
+    "chinese": "看样子 / 显然",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "推测怀疑",
+    "exUz": "Aftidan, yomg'ir yog'sa kerak.",
+    "exCn": "看样子是要下雨了。"
+  },
+  {
+    "no": 197,
+    "uzbek": "Hoynahoy",
+    "chinese": "十有八九 / 多半",
+    "level": "B2",
+    "category": "情态词汇",
+    "type": "推测怀疑",
+    "exUz": "Hoynahoy, u poezdga kechikdi.",
+    "exCn": "十有八九他是没赶上火车。"
+  },
+  {
+    "no": 198,
+    "uzbek": "Menimcha",
+    "chinese": "依我看 / 在我看来",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "表达观点",
+    "exUz": "Menimcha, bu kitob juda foydali.",
+    "exCn": "在我看来，这本书非常实用。"
+  },
+  {
+    "no": 199,
+    "uzbek": "Sizningcha",
+    "chinese": "依您看 / 您的意见",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "询问观点",
+    "exUz": "Sizningcha, nima qilishimiz kerak?",
+    "exCn": "依您看，我们该怎么做？"
+  },
+  {
+    "no": 200,
+    "uzbek": "Xullas",
+    "chinese": "总之 / 简而言之",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "总结归纳",
+    "exUz": "Xullas, rejani o'zgartirish kerak.",
+    "exCn": "总之，我们需要调整计划。"
+  },
+  {
+    "no": 201,
+    "uzbek": "Demak",
+    "chinese": "也就是说 / 因而",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "总结归纳",
+    "exUz": "Demak, ertaga soat to'qqizda uchrashamiz.",
+    "exCn": "也就是说，我们明天九点见。"
+  },
+  {
+    "no": 202,
+    "uzbek": "Avvalo / Avvalambor",
+    "chinese": "首先 / 第一步",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "逻辑顺序",
+    "exUz": "Avvalo, qoidalarni o'rganish kerak.",
+    "exCn": "首先，要学习规矩准则。"
+  },
+  {
+    "no": 203,
+    "uzbek": "Birinchidan",
+    "chinese": "第一 / 首先",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "逻辑顺序",
+    "exUz": "Birinchidan, vaqtni tejashimiz kerak.",
+    "exCn": "第一，我们必须抓紧节约时间。"
+  },
+  {
+    "no": 204,
+    "uzbek": "Ikkinchidan",
+    "chinese": "第二 / 其次",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "逻辑顺序",
+    "exUz": "Ikkinchidan, bu juda qimmat.",
+    "exCn": "第二，这个实在太贵了。"
+  },
+  {
+    "no": 205,
+    "uzbek": "Nihoyat",
+    "chinese": "终于 / 最终",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "逻辑顺序",
+    "exUz": "Nihoyat, imtihon tugadi.",
+    "exCn": "考试终于圆满结束了。"
+  },
+  {
+    "no": 206,
+    "uzbek": "Qolaversa",
+    "chinese": "此外 / 再者",
+    "level": "B2",
+    "category": "情态词汇",
+    "type": "补充递进",
+    "exUz": "Qolaversa, mening ham vaqtim oz.",
+    "exCn": "再者，我自己的时间也不多。"
+  },
+  {
+    "no": 207,
+    "uzbek": "Darvoqe / Aytgandek",
+    "chinese": "顺便说一句 / 话又说回来",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "补充递进",
+    "exUz": "Darvoqe, eshikni qulfladingizmi?",
+    "exCn": "顺便问下，你锁门了吗？"
+  },
+  {
+    "no": 208,
+    "uzbek": "Afsuski / Attang",
+    "chinese": "可惜 / 遗憾的是",
+    "level": "A2",
+    "category": "情态词汇",
+    "type": "惋惜感情",
+    "exUz": "Afsuski, men bora olmayman.",
+    "exCn": "很可惜，我无法前去。"
+  },
+  {
+    "no": 209,
+    "uzbek": "Xayriyat",
+    "chinese": "幸好 / 谢天谢地",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "欣慰感情",
+    "exUz": "Xayriyat, hamma omon qoldi.",
+    "exCn": "谢天谢地，所有人都平安无事。"
+  },
+  {
+    "no": 210,
+    "uzbek": "Aksincha",
+    "chinese": "相反地 / 反倒",
+    "level": "B1",
+    "category": "情态词汇",
+    "type": "转折对比",
+    "exUz": "U xafa bo'lmadi, aksincha kuldi.",
+    "exCn": "他没有生气，反倒笑了起来。"
+  },
+  {
+    "no": 211,
+    "uzbek": "Chunki",
+    "chinese": "因为",
+    "level": "A1",
+    "category": "情态词汇",
+    "type": "因果连词",
+    "exUz": "Men bormayman, chunki bandman.",
+    "exCn": "我不去，因为我实在抽不开身。"
+  },
+  {
+    "no": 212,
+    "uzbek": "Shuning uchun",
+    "chinese": "所以 / 因此",
+    "level": "A1",
+    "category": "情态词汇",
+    "type": "因果连词",
+    "exUz": "Havo sovuq, shuning uchun kurtka kiydim.",
+    "exCn": "天气冷，所以我穿了外套。"
+  },
+  {
+    "no": 213,
+    "uzbek": "Lekin / Ammo",
+    "chinese": "但是 / 可是",
+    "level": "A1",
+    "category": "情态词汇",
+    "type": "转折连词",
+    "exUz": "Men borishni xohlayman, lekin vaqtim yo'q.",
+    "exCn": "我想去，可是我没有时间。"
+  },
+  {
+    "no": 214,
+    "uzbek": "Agar",
+    "chinese": "如果 / 要是",
+    "level": "A1",
+    "category": "情态词汇",
+    "type": "条件连词",
+    "exUz": "Agar vaqtingiz bo'lsa, keling.",
+    "exCn": "如果您有时间，欢迎随时来。"
+  },
+  {
+    "no": 215,
+    "uzbek": "Ham",
+    "chinese": "也 / 并且",
+    "level": "A1",
+    "category": "情态词汇",
+    "type": "副词/助词",
+    "exUz": "Men ham talabaman.",
+    "exCn": "我也是一名大学生。"
+  },
+  {
+    "no": 216,
+    "uzbek": "Non",
+    "chinese": "馕 / 面包",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Issiq non juda mazali.",
+    "exCn": "热腾腾的馕非常香甜好吃。"
+  },
+  {
+    "no": 217,
+    "uzbek": "Osh / Palov",
+    "chinese": "抓饭",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Toshkent palovi mashhur.",
+    "exCn": "塔什干手抓饭非常有名。"
+  },
+  {
+    "no": 218,
+    "uzbek": "Shashlik",
+    "chinese": "烤肉串",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Menga ikki siq shashlik bering.",
+    "exCn": "请给我来两串烤肉串。"
+  },
+  {
+    "no": 219,
+    "uzbek": "Somsa",
+    "chinese": "烤包子",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Tandir somsasi juda shirin.",
+    "exCn": "坑烤包子非常美味酥香。"
+  },
+  {
+    "no": 220,
+    "uzbek": "Sho'rva",
+    "chinese": "肉汤",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Issiq sho'rva iching.",
+    "exCn": "喝一碗热乎乎的肉汤吧。"
+  },
+  {
+    "no": 221,
+    "uzbek": "Choy",
+    "chinese": "茶",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Ko'k choy ichasizmi yoki qora choy?",
+    "exCn": "您喝绿茶还是红茶？"
+  },
+  {
+    "no": 222,
+    "uzbek": "Suv",
+    "chinese": "水",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Bir stakan gazsiz suv bering.",
+    "exCn": "请给我一杯不带气的水。"
+  },
+  {
+    "no": 223,
+    "uzbek": "Go'sht",
+    "chinese": "肉",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Mol go'shti yangi ekan.",
+    "exCn": "牛肉非常新鲜。"
+  },
+  {
+    "no": 224,
+    "uzbek": "Sut",
+    "chinese": "牛奶",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Ertalab sut ichaman.",
+    "exCn": "我早晨喝一杯牛奶。"
+  },
+  {
+    "no": 225,
+    "uzbek": "Qand / Shakar",
+    "chinese": "糖",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Choyga shakar solmaysizmi?",
+    "exCn": "您的茶里不加糖吗？"
+  },
+  {
+    "no": 226,
+    "uzbek": "Tuz",
+    "chinese": "盐",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Oshga tuz yetarli.",
+    "exCn": "饭里的盐味刚刚好。"
+  },
+  {
+    "no": 227,
+    "uzbek": "Meva",
+    "chinese": "水果",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Bozordan yangi mevalar oldim.",
+    "exCn": "我从巴扎集市买了新鲜水果。"
+  },
+  {
+    "no": 228,
+    "uzbek": "Sabzavot",
+    "chinese": "蔬菜",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Salat uchun sabzavot kerak.",
+    "exCn": "做沙拉需要新鲜蔬菜。"
+  },
+  {
+    "no": 229,
+    "uzbek": "Olma",
+    "chinese": "苹果",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Qizil olma shirin bo'ladi.",
+    "exCn": "红苹果吃起来很甜。"
+  },
+  {
+    "no": 230,
+    "uzbek": "Uzum",
+    "chinese": "葡萄",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "O'zbekiston uzumlari mashhur.",
+    "exCn": "乌兹别克斯坦的葡萄远近闻名。"
+  },
+  {
+    "no": 231,
+    "uzbek": "Qovun",
+    "chinese": "甜瓜 / 哈密瓜",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Bu qovun asaldek shirin.",
+    "exCn": "这个甜瓜像蜜一样甜。"
+  },
+  {
+    "no": 232,
+    "uzbek": "Tarvuz",
+    "chinese": "西瓜",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Muzdek tarvuz yeymiz.",
+    "exCn": "我们切个冰凉的西瓜吃。"
+  },
+  {
+    "no": 233,
+    "uzbek": "Nonushta",
+    "chinese": "早餐",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Ertalab nonushta qildingizmi?",
+    "exCn": "你早上吃过早饭了吗？"
+  },
+  {
+    "no": 234,
+    "uzbek": "Tushlik",
+    "chinese": "午餐",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Soat birda tushlik qilamiz.",
+    "exCn": "我们一点钟吃午饭。"
+  },
+  {
+    "no": 235,
+    "uzbek": "Kechki ovqat",
+    "chinese": "晚餐",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "名词",
+    "exUz": "Kechki ovqatga nima bor?",
+    "exCn": "晚饭有什么好吃的？"
+  },
+  {
+    "no": 236,
+    "uzbek": "Mazali / Shirin",
+    "chinese": "好吃的 / 美味的",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "形容词",
+    "exUz": "Taom juda mazali bo'libdi.",
+    "exCn": "这饭菜做得太可口了。"
+  },
+  {
+    "no": 237,
+    "uzbek": "Och / Qorin ochdi",
+    "chinese": "肚子饿",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "生理状态",
+    "exUz": "Qornim ochdi, ovqat yeylik.",
+    "exCn": "我肚子饿了，吃点东西吧。"
+  },
+  {
+    "no": 238,
+    "uzbek": "Chanqamoq",
+    "chinese": "口渴",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "生理状态",
+    "exUz": "Juda chanqadim, suv bormi?",
+    "exCn": "我渴坏了，有饮用水吗？"
+  },
+  {
+    "no": 239,
+    "uzbek": "Restoran / Kafe",
+    "chinese": "餐厅 / 咖啡馆",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "场所名词",
+    "exUz": "Milliy restoranga boramiz.",
+    "exCn": "我们去一家民族特色餐馆。"
+  },
+  {
+    "no": 240,
+    "uzbek": "Hisob / Chek",
+    "chinese": "结账 / 账单",
+    "level": "A1",
+    "category": "餐饮饮食",
+    "type": "结账用语",
+    "exUz": "Iltimos, hisobni olib keling.",
+    "exCn": "服务员，请拿账单结账。"
+  },
+  {
+    "no": 241,
+    "uzbek": "Pul",
+    "chinese": "钱",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Menda mayda pul yo'q.",
+    "exCn": "我身上没有零钱。"
+  },
+  {
+    "no": 242,
+    "uzbek": "So'm",
+    "chinese": "苏姆（货币）",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "量词",
+    "exUz": "Bu kitob ellik ming so'm.",
+    "exCn": "这本书五万苏姆。"
+  },
+  {
+    "no": 243,
+    "uzbek": "Dollar",
+    "chinese": "美元",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "量词",
+    "exUz": "Valyuta ayirboshlash shoxobchasi.",
+    "exCn": "外币兑换点。"
+  },
+  {
+    "no": 244,
+    "uzbek": "Qimmat",
+    "chinese": "贵的",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "形容词",
+    "exUz": "Bu juda qimmat, arzonrog'i bormi?",
+    "exCn": "这个太贵了，有便宜点的吗？"
+  },
+  {
+    "no": 245,
+    "uzbek": "Arzon",
+    "chinese": "便宜的",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "形容词",
+    "exUz": "Bozorda narxlar ancha arzon.",
+    "exCn": "集市里的价格相当便宜实惠。"
+  },
+  {
+    "no": 246,
+    "uzbek": "Chegirma",
+    "chinese": "打折 / 优惠",
+    "level": "A2",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Talabalar uchun chegirma bormi?",
+    "exCn": "有针对大学生的学生优惠吗？"
+  },
+  {
+    "no": 247,
+    "uzbek": "Karta bilan to'lash",
+    "chinese": "刷卡支付",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "支付动作",
+    "exUz": "Karta orqali to'lasam bo'ladimi?",
+    "exCn": "我可以用银行卡刷卡支付吗？"
+  },
+  {
+    "no": 248,
+    "uzbek": "Naqd pul",
+    "chinese": "现金",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Faqat naqd pul qabul qilinadi.",
+    "exCn": "本店只接受收取现金。"
+  },
+  {
+    "no": 249,
+    "uzbek": "Bozor",
+    "chinese": "巴扎 / 集市",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "场所名词",
+    "exUz": "Chorsu bozoriga boraylik.",
+    "exCn": "我们去乔尔苏巴扎逛逛吧。"
+  },
+  {
+    "no": 250,
+    "uzbek": "Do'kon",
+    "chinese": "商店 / 超市",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "场所名词",
+    "exUz": "Do'kon soat to'qqizda ochiladi.",
+    "exCn": "商店早上九点开门营业。"
+  },
+  {
+    "no": 251,
+    "uzbek": "Dorixona",
+    "chinese": "药店",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "场所名词",
+    "exUz": "Yaqin atrofda dorixona bormi?",
+    "exCn": "这附近有药店吗？"
+  },
+  {
+    "no": 252,
+    "uzbek": "Shifoxona",
+    "chinese": "医院",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "场所名词",
+    "exUz": "U shifoxonada davolanyapti.",
+    "exCn": "他在医院里接受治疗。"
+  },
+  {
+    "no": 253,
+    "uzbek": "Mehmonxona",
+    "chinese": "宾馆 / 酒店",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "场所名词",
+    "exUz": "Mehmonxonada bo'sh xona bormi?",
+    "exCn": "酒店里还有空闲客房吗？"
+  },
+  {
+    "no": 254,
+    "uzbek": "Aeroport",
+    "chinese": "机场",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通场所",
+    "exUz": "Aeroportga qanday borsam bo'ladi?",
+    "exCn": "我该怎么去飞机场？"
+  },
+  {
+    "no": 255,
+    "uzbek": "Vokzal",
+    "chinese": "火车站",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通场所",
+    "exUz": "Shimoliy vokzalga yetib keldik.",
+    "exCn": "我们到达了火车北站。"
+  },
+  {
+    "no": 256,
+    "uzbek": "Metro",
+    "chinese": "地铁",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通方式",
+    "exUz": "Toshkent metrosi juda go'zal.",
+    "exCn": "塔什干地铁非常典雅漂亮。"
+  },
+  {
+    "no": 257,
+    "uzbek": "Avtobus",
+    "chinese": "公交车",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通方式",
+    "exUz": "Beshinchi avtobus qayerga boradi?",
+    "exCn": "5路公交车是开往哪里的？"
+  },
+  {
+    "no": 258,
+    "uzbek": "Taksi",
+    "chinese": "出租车",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通方式",
+    "exUz": "Taksi chaqirib bera olasizmi?",
+    "exCn": "可以麻烦帮忙叫辆出租车吗？"
+  },
+  {
+    "no": 259,
+    "uzbek": "Poyezd",
+    "chinese": "火车",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通方式",
+    "exUz": "Afrosiyob tezyurar poyezdi.",
+    "exCn": "阿芙罗夏卜号高速列车。"
+  },
+  {
+    "no": 260,
+    "uzbek": "Samolyot",
+    "chinese": "飞机",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "交通方式",
+    "exUz": "Samolyot soat o'nda uchadi.",
+    "exCn": "飞机上午十点准时起飞。"
+  },
+  {
+    "no": 261,
+    "uzbek": "Bilet / Chipta",
+    "chinese": "车票 / 门票",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Samarqandga bitta chipta bering.",
+    "exCn": "请给一张去撒马尔罕的车票。"
+  },
+  {
+    "no": 262,
+    "uzbek": "To'xtash joyi (Bekat)",
+    "chinese": "公交车站 / 站台",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Keyingi bekat nima?",
+    "exCn": "下一站是什么车站？"
+  },
+  {
+    "no": 263,
+    "uzbek": "Xarita",
+    "chinese": "地图",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Menga shahar xaritasi kerak.",
+    "exCn": "我需要一份城市旅游地图。"
+  },
+  {
+    "no": 264,
+    "uzbek": "Manzil",
+    "chinese": "地址",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "名词",
+    "exUz": "Aniq manzilingizni ayting.",
+    "exCn": "请告诉我您的详细地址。"
+  },
+  {
+    "no": 265,
+    "uzbek": "To'g'riga",
+    "chinese": "直走",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "方向方位",
+    "exUz": "To'g'riga boring, keyin o'ngga buriling.",
+    "exCn": "一直直走，然后右转。"
+  },
+  {
+    "no": 266,
+    "uzbek": "O'ngga",
+    "chinese": "向右",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "方向方位",
+    "exUz": "O'ng tomonda katta bino bor.",
+    "exCn": "在右手边有一座宏伟的大厦。"
+  },
+  {
+    "no": 267,
+    "uzbek": "Chapga",
+    "chinese": "向左",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "方向方位",
+    "exUz": "Chapga burilsangiz dorixona chiqadi.",
+    "exCn": "向左拐就能看到药房。"
+  },
+  {
+    "no": 268,
+    "uzbek": "Yaqin",
+    "chinese": "近的",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "空间距离",
+    "exUz": "Mehmonxona metroga juda yaqin.",
+    "exCn": "酒店离地铁站非常近。"
+  },
+  {
+    "no": 269,
+    "uzbek": "Uzoq",
+    "chinese": "远的",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "空间距离",
+    "exUz": "Bu yerdan aeroport uzoqmi?",
+    "exCn": "从这里去飞机场路途遥远吗？"
+  },
+  {
+    "no": 270,
+    "uzbek": "Yo'l",
+    "chinese": "马路 / 道路",
+    "level": "A1",
+    "category": "购物交通",
+    "type": "空间名词",
+    "exUz": "Yo'lda tirbandlik bor.",
+    "exCn": "路上现在正在堵车。"
+  },
+  {
+    "no": 271,
+    "uzbek": "Borish / Bormoq",
+    "chinese": "去 / 前往",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Ertaga maktabga boraman.",
+    "exCn": "我明天要去学校。"
+  },
+  {
+    "no": 272,
+    "uzbek": "Kelish / Kelmoq",
+    "chinese": "来 / 抵达",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Mehmonlar uyga kelishdi.",
+    "exCn": "客人们来到家里做客。"
+  },
+  {
+    "no": 273,
+    "uzbek": "Ko'rish / Ko'rmoq",
+    "chinese": "看见 / 见面",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Men do'stimni ko'rdim.",
+    "exCn": "我见到了我的朋友。"
+  },
+  {
+    "no": 274,
+    "uzbek": "Eshitish / Eshitmoq",
+    "chinese": "听 / 听到",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Musiqa eshityapman.",
+    "exCn": "我正在听动听的音乐。"
+  },
+  {
+    "no": 275,
+    "uzbek": "Gapirish / Gapirmoq",
+    "chinese": "说 / 说话",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Siz o'zbekcha gapirasizmi?",
+    "exCn": "你会说乌兹别克语吗？"
+  },
+  {
+    "no": 276,
+    "uzbek": "Aytish / Aytmoq",
+    "chinese": "讲 / 告诉",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Menga haqiqatni ayting.",
+    "exCn": "请把实情告诉我。"
+  },
+  {
+    "no": 277,
+    "uzbek": "O'qish / O'qimoq",
+    "chinese": "读 / 学习",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Men universitetda o'qiyman.",
+    "exCn": "我在综合性大学读书学习。"
+  },
+  {
+    "no": 278,
+    "uzbek": "Yozish / Yozmoq",
+    "chinese": "写",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Daftarga yangi so'zlarni yozing.",
+    "exCn": "请在笔记本上记下新单词。"
+  },
+  {
+    "no": 279,
+    "uzbek": "Yemoq",
+    "chinese": "吃",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Mazali palov yeymiz.",
+    "exCn": "我们来吃香喷喷的抓饭。"
+  },
+  {
+    "no": 280,
+    "uzbek": "Ichmoq",
+    "chinese": "喝",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Ko'proq toza suv iching.",
+    "exCn": "平时要多喝纯净的温水。"
+  },
+  {
+    "no": 281,
+    "uzbek": "Uxlamoq",
+    "chinese": "睡觉",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Charchadim, uxlamoqchiman.",
+    "exCn": "我累坏了，想早点睡下。"
+  },
+  {
+    "no": 282,
+    "uzbek": "Uyg'onmoq",
+    "chinese": "醒来 / 起床",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Ertalab soat oltida uyg'onaman.",
+    "exCn": "我每天清晨六点准时醒来。"
+  },
+  {
+    "no": 283,
+    "uzbek": "Ishlamoq",
+    "chinese": "工作 / 上班",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Dadam bankda ishlaydi.",
+    "exCn": "我爸爸在银行系统工作。"
+  },
+  {
+    "no": 284,
+    "uzbek": "Dam olmoq",
+    "chinese": "休息",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词短语",
+    "exUz": "Biroz dam oling, charchabsiz.",
+    "exCn": "稍微歇息会儿吧，你辛苦了。"
+  },
+  {
+    "no": 285,
+    "uzbek": "Sotib olmoq",
+    "chinese": "买 / 购买",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词短语",
+    "exUz": "Yangi telefon sotib oldim.",
+    "exCn": "我买了一部新手机。"
+  },
+  {
+    "no": 286,
+    "uzbek": "Sotmoq",
+    "chinese": "卖 / 出售",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "U mashinasini sotdi.",
+    "exCn": "他把自己的车给卖掉了。"
+  },
+  {
+    "no": 287,
+    "uzbek": "Yordam bermoq",
+    "chinese": "帮助 / 帮忙",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词短语",
+    "exUz": "Menga yordam bera olasizmi?",
+    "exCn": "您能搭把手帮帮我吗？"
+  },
+  {
+    "no": 288,
+    "uzbek": "Boshlamoq",
+    "chinese": "开始",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Dars soat to'qqizda boshlanadi.",
+    "exCn": "上午九点钟正式开始上课。"
+  },
+  {
+    "no": 289,
+    "uzbek": "Tugamoq",
+    "chinese": "结束 / 完了",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Film soat sakkizda tugaydi.",
+    "exCn": "电影将于晚上八点整放映结束。"
+  },
+  {
+    "no": 290,
+    "uzbek": "Bilmoq",
+    "chinese": "知道 / 了解",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Men buni bilmayman.",
+    "exCn": "这个情况我不太清楚。"
+  },
+  {
+    "no": 291,
+    "uzbek": "Tushunmoq",
+    "chinese": "理解 / 听懂",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Gapingizni tushundim.",
+    "exCn": "你的这番话我完全听明白了。"
+  },
+  {
+    "no": 292,
+    "uzbek": "Kutmoq",
+    "chinese": "等待 / 等候",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Iltimos, meni shu yerda kuting.",
+    "exCn": "请在这里稍等我一下。"
+  },
+  {
+    "no": 293,
+    "uzbek": "Xohlamoq / Istamoq",
+    "chinese": "想要 / 希望",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Choy ichishni xohlaysizmi?",
+    "exCn": "你想喝杯热茶吗？"
+  },
+  {
+    "no": 294,
+    "uzbek": "Kerak",
+    "chinese": "需要 / 必须",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "情态谓语",
+    "exUz": "Menga viza olish kerak.",
+    "exCn": "我需要办理相关签证。"
+  },
+  {
+    "no": 295,
+    "uzbek": "Mumkin",
+    "chinese": "可以 / 许可",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "情态谓语",
+    "exUz": "Kirsam bo'ladimi? - Mumkin, kiring.",
+    "exCn": "我可以进来吗？——可以，请进。"
+  },
+  {
+    "no": 296,
+    "uzbek": "Mumkin emas",
+    "chinese": "不可以 / 禁止",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "情态谓语",
+    "exUz": "Bu yerda chekish mumkin emas.",
+    "exCn": "此处严禁吸烟。"
+  },
+  {
+    "no": 297,
+    "uzbek": "Sevish / Yaxshi ko'rmoq",
+    "chinese": "喜欢 / 热爱",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词短语",
+    "exUz": "Men kitob o'qishni yaxshi ko'raman.",
+    "exCn": "我非常喜爱阅读书籍。"
+  },
+  {
+    "no": 298,
+    "uzbek": "Yashamoq",
+    "chinese": "生活 / 居住",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Biz tinchlikda yashaymiz.",
+    "exCn": "我们在和平宁静中生活。"
+  },
+  {
+    "no": 299,
+    "uzbek": "Kiyish / Kiymoq",
+    "chinese": "穿戴（衣物）",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词原形",
+    "exUz": "Issiq kurtka kiymoq.",
+    "exCn": "穿上一件厚实的保暖外套。"
+  },
+  {
+    "no": 300,
+    "uzbek": "Unutmaslik / Eslab qolmoq",
+    "chinese": "记住 / 牢记",
+    "level": "A1",
+    "category": "核心动词",
+    "type": "动词短语",
+    "exUz": "Buni doim eslab qoling.",
+    "exCn": "请时刻把这一点记在心上。"
+  }
+];
+
+  const STORAGE_KEY = 'uzbek_vocab_data_v300';
+  let vocabList = [...DEFAULT_VOCAB];
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 50) {
+        vocabList = parsed;
+      }
+    }
+  } catch(e) {
+    console.warn("Storage load error:", e);
+  }
+
+  let activeLevel = "全部";
+  let activeCategory = "全部";
+  let currentCardIndex = 0;
+  let activeFilteredList = [];
+  let editingOriginalWord = null; // 标记当前正在编辑的词汇
+
+  function saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabList));
+    } catch(e) {}
+  }
+
+  function getFilteredList() {
+    const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    return vocabList.filter(item => {
+      const matchLevel = (activeLevel === "全部" || item.level === activeLevel);
+      const matchCat = (activeCategory === "全部" || item.category === activeCategory);
+      const matchSearch = !search || 
+        (item.uzbek && item.uzbek.toLowerCase().includes(search)) || 
+        (item.chinese && item.chinese.toLowerCase().includes(search)) ||
+        (item.exUz && item.exUz.toLowerCase().includes(search)) ||
+        (item.exCn && item.exCn.toLowerCase().includes(search)) ||
+        (item.type && item.type.toLowerCase().includes(search));
+      return matchLevel && matchCat && matchSearch;
+    });
+  }
+
+  // 渲染等级筛选按钮
+  function renderLevelPills() {
+    const levels = ["全部", "A1", "A2", "B1", "B2"];
+    const container = document.getElementById('levelPills');
+    if (!container) return;
+    
+    container.innerHTML = levels.map(lvl => {
+      let count = 0;
+      if (lvl === "全部") {
+        count = vocabList.length;
+      } else {
+        count = vocabList.filter(i => i.level === lvl).length;
+      }
+      return `
+        <button class="pill-btn ${lvl === activeLevel ? 'active' : ''}" onclick="filterLevel('${lvl}')">
+          ${lvl} <span class="pill-count">${count}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  // 渲染分类筛选按钮
+  function renderCategoryPills() {
+    const categories = ["全部", ...new Set(vocabList.map(item => item.category || "其他"))];
+    const container = document.getElementById('categoryPills');
+    if (!container) return;
+    
+    container.innerHTML = categories.map(cat => {
+      let count = 0;
+      if (cat === "全部") {
+        count = activeLevel === "全部" ? vocabList.length : vocabList.filter(i => i.level === activeLevel).length;
+      } else {
+        count = vocabList.filter(i => i.category === cat && (activeLevel === "全部" || i.level === activeLevel)).length;
+      }
+      return `
+        <button class="pill-btn ${cat === activeCategory ? 'active' : ''}" onclick="filterCategory('${cat}')">
+          ${cat} <span class="pill-count">${count}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function filterLevel(lvl) {
+    activeLevel = lvl;
+    currentCardIndex = 0;
+    renderLevelPills();
+    renderCategoryPills();
+    renderAll();
+  }
+
+  function filterCategory(cat) {
+    activeCategory = cat;
+    currentCardIndex = 0;
+    renderCategoryPills();
+    renderAll();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('vocabTableBody');
+    if (!tbody) return;
+
+    if (activeFilteredList.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 40px;">没有找到符合条件的词汇，请更换筛选条件</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = activeFilteredList.map((item, idx) => `
+      <tr>
+        <td style="text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;">${item.no || (idx + 1)}</td>
+        <td>
+          <div class="uzbek-word">
+            <span>${item.uzbek}</span>
+            <button class="speak-btn" onclick="speakByIndex(${idx})" title="发音">🔊</button>
+          </div>
+        </td>
+        <td><strong>${item.chinese}</strong></td>
+        <td style="text-align: center;">
+          <span class="level-badge level-${item.level || 'A1'}">${item.level || 'A1'}</span>
+        </td>
+        <td>
+          <span class="badge">${item.category || "常用语"}</span>
+          ${item.type ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; margin-left: 2px;">${item.type}</span>` : ''}
+        </td>
+        <td>
+          <div class="example-uz">${item.exUz || "-"}</div>
+          <div class="example-cn">${item.exCn || ""}</div>
+        </td>
+        <td style="text-align: center;">
+          <div class="action-icons">
+            <button class="edit-btn" onclick="openEditModalByFilteredIndex(${idx})" title="修改此条">✏️ 修改</button>
+            <button class="del-btn" onclick="deleteWord(${idx})" title="删除此词">✕</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // 抽认卡功能
+  function renderCard() {
+    const cardEl = document.getElementById('flashcard');
+    if (!cardEl) return;
+    cardEl.classList.remove('flipped');
+
+    if (activeFilteredList.length === 0) {
+      document.getElementById('cardUzbekText').textContent = "暂无词汇";
+      document.getElementById('cardChineseText').textContent = "请调整筛选条件";
+      document.getElementById('cardExUz').textContent = "-";
+      document.getElementById('cardExCn').textContent = "-";
+      document.getElementById('cardProgress').textContent = "0 / 0";
+      return;
+    }
+
+    if (currentCardIndex >= activeFilteredList.length) currentCardIndex = 0;
+    if (currentCardIndex < 0) currentCardIndex = activeFilteredList.length - 1;
+
+    const cur = activeFilteredList[currentCardIndex];
+    const lvl = cur.level || "A1";
+
+    // 正面
+    document.getElementById('cardUzbekText').textContent = cur.uzbek;
+    const lvlFront = document.getElementById('cardLevelFront');
+    lvlFront.textContent = lvl;
+    lvlFront.className = `level-badge level-${lvl}`;
+    document.getElementById('cardCategoryFront').textContent = cur.category || "词汇";
+    document.getElementById('cardTypeFront').textContent = cur.type || "常用语";
+    document.getElementById('cardContextFront').textContent = cur.type || "";
+
+    // 背面
+    document.getElementById('cardChineseText').textContent = cur.chinese;
+    const lvlBack = document.getElementById('cardLevelBack');
+    lvlBack.textContent = lvl;
+    lvlBack.className = `level-badge level-${lvl}`;
+    document.getElementById('cardCategoryBack').textContent = cur.category || "词汇";
+    document.getElementById('cardExUz').textContent = cur.exUz || "";
+    document.getElementById('cardExCn').textContent = cur.exCn || "";
+
+    document.getElementById('cardProgress').textContent = `${currentCardIndex + 1} / ${activeFilteredList.length}`;
+  }
+
+  function flipCard() {
+    const card = document.getElementById('flashcard');
+    if (card) card.classList.toggle('flipped');
+  }
+
+  function nextCard() {
+    if (activeFilteredList.length === 0) return;
+    currentCardIndex = (currentCardIndex + 1) % activeFilteredList.length;
+    renderCard();
+  }
+
+  function prevCard() {
+    if (activeFilteredList.length === 0) return;
+    currentCardIndex = (currentCardIndex - 1 + activeFilteredList.length) % activeFilteredList.length;
+    renderCard();
+  }
+
+  function speakByIndex(idx) {
+    const item = activeFilteredList[idx];
+    if (item && item.uzbek) speakText(item.uzbek);
+  }
+
+  function speakCardWord() {
+    const cur = activeFilteredList[currentCardIndex];
+    if (cur && cur.uzbek) speakText(cur.uzbek);
+  }
+
+  function editCurrentCard() {
+    const cur = activeFilteredList[currentCardIndex];
+    if (cur) openEditModalWithItem(cur);
+  }
+
+  function shuffleCurrentList() {
+    for (let i = activeFilteredList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [activeFilteredList[i], activeFilteredList[j]] = [activeFilteredList[j], activeFilteredList[i]];
+    }
+    currentCardIndex = 0;
+    renderTable();
+    renderCard();
+  }
+
+  function switchView(view) {
+    const listBtn = document.getElementById('btnListView');
+    const cardBtn = document.getElementById('btnCardView');
+    const listContainer = document.getElementById('listViewContainer');
+    const cardContainer = document.getElementById('cardViewContainer');
+
+    if (view === 'list') {
+      listBtn.classList.add('active');
+      cardBtn.classList.remove('active');
+      listContainer.style.display = 'block';
+      cardContainer.style.display = 'none';
+    } else {
+      cardBtn.classList.add('active');
+      listBtn.classList.remove('active');
+      listContainer.style.display = 'none';
+      cardContainer.style.display = 'flex';
+      renderCard();
+    }
+  }
+
+  function updateStatusBar() {
+    const statusText = `等级：${activeLevel} · 主题：${activeCategory}`;
+    const el1 = document.getElementById('filterStatus');
+    const el2 = document.getElementById('vocabCount');
+    if (el1) el1.textContent = statusText;
+    if (el2) el2.textContent = activeFilteredList.length;
+  }
+
+  function renderAll() {
+    activeFilteredList = getFilteredList();
+    updateStatusBar();
+    renderTable();
+    renderCard();
+  }
+
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'uz-UZ';
+      window.speechSynthesis.speak(utter);
+    }
+  }
+
+  function deleteWord(idx) {
+    if (confirm("确定要删除这个词汇吗？")) {
+      const targetItem = activeFilteredList[idx];
+      vocabList = vocabList.filter(item => item !== targetItem);
+      saveToStorage();
+      renderLevelPills();
+      renderCategoryPills();
+      renderAll();
+    }
+  }
+
+  function resetToOfficialData() {
+    if (confirm("确定要恢复默认的 300 句官方核心词库吗？手动添加或修改的内容将被重置。")) {
+      vocabList = [...DEFAULT_VOCAB];
+      saveToStorage();
+      activeLevel = "全部";
+      activeCategory = "全部";
+      currentCardIndex = 0;
+      renderLevelPills();
+      renderCategoryPills();
+      renderAll();
+    }
+  }
+
+  // 📤 导出 Excel 功能
+  function exportToExcel() {
+    const exportData = activeFilteredList.map((item, idx) => ({
+      "序号 (No.)": item.no || (idx + 1),
+      "乌兹别克语 (Uzbek)": item.uzbek,
+      "中文简体 (Chinese)": item.chinese,
+      "等级 (CEFR)": item.level || "A1",
+      "分类 (Category)": item.category || "常用语",
+      "词性 / 使用场景 (Context)": item.type || "",
+      "实用例句 (Uzbek Example)": item.exUz || "",
+      "中文例句 (Chinese Translation)": item.exCn || ""
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "乌语词汇库");
+    XLSX.writeFile(wb, "乌兹别克语核心词汇库_300词.xlsx");
+  }
+
+  // 📥 智能去重导入 Excel 功能（已存在的词条自动覆盖更新，新词追加，零重复！）
+  document.getElementById('excelFileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        // 建立已有词汇的快速检索哈希表 (以小写乌语单词为唯一识别 key)
+        const wordMap = new Map();
+        vocabList.forEach(item => {
+          if (item.uzbek) wordMap.set(item.uzbek.trim().toLowerCase(), item);
+        });
+
+        let addedCount = 0;
+        let updatedCount = 0;
+
+        rows.forEach(r => {
+          const uzbek = (r['乌兹别克语 (Uzbek)'] || r['乌语'] || r['Uzbek'] || r['uzbek'] || '').trim();
+          const chinese = (r['中文简体 (Chinese)'] || r['中文'] || r['Chinese'] || r['chinese'] || '').trim();
+          const level = (r['等级 (CEFR)'] || r['等级'] || r['Level'] || 'A1').trim();
+          const category = (r['分类 (Category)'] || r['分类'] || r['Category'] || '导入常用语').trim();
+          const type = (r['词性 / 使用场景 (Context)'] || r['词性'] || r['Type'] || '常用语').trim();
+          const exUz = (r['实用例句 (Uzbek Example)'] || r['乌语例句'] || r['ExampleUz'] || '').trim();
+          const exCn = (r['中文例句 (Chinese Translation)'] || r['中文例句'] || r['ExampleCn'] || '').trim();
+
+          if (uzbek && chinese) {
+            const key = uzbek.toLowerCase();
+            if (wordMap.has(key)) {
+              // 关键去重机制：如果词库中已存在这个乌语单词，更新它的释义、例句与等级，绝不新增重复行！
+              const existingItem = wordMap.get(key);
+              existingItem.chinese = chinese;
+              existingItem.level = level;
+              existingItem.category = category;
+              existingItem.type = type;
+              if (exUz) existingItem.exUz = exUz;
+              if (exCn) existingItem.exCn = exCn;
+              updatedCount++;
+            } else {
+              // 全新词条：追加到列表
+              const newItem = {
+                no: vocabList.length + 1,
+                uzbek,
+                chinese,
+                level,
+                category,
+                type,
+                exUz,
+                exCn
+              };
+              vocabList.push(newItem);
+              wordMap.set(key, newItem);
+              addedCount++;
+            }
+          }
+        });
+
+        saveToStorage();
+        renderLevelPills();
+        renderCategoryPills();
+        renderAll();
+        alert(`🎉 智能去重导入完成！\n• 新增词汇：${addedCount} 条\n• 自动更新修正已有词条：${updatedCount} 条\n• 保证 100% 无重复单词！`);
+      } catch (err) {
+        alert("导入解析失败，请确认表格文件格式！");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = '';
+  });
+
+  // ✏️ 快速编辑与新增通用弹窗
+  function openAddModal() {
+    editingOriginalWord = null;
+    document.getElementById('modalTitle').textContent = "＋ 新增乌语词汇 / 常用语";
+    document.getElementById('modalSaveBtn').textContent = "保存并添加";
+    document.getElementById('modalUzbek').value = "";
+    document.getElementById('modalChinese').value = "";
+    document.getElementById('modalLevel').value = "A1";
+    document.getElementById('modalCategory').value = activeCategory === "全部" ? "" : activeCategory;
+    document.getElementById('modalType').value = "";
+    document.getElementById('modalExUz').value = "";
+    document.getElementById('modalExCn').value = "";
+    document.getElementById('wordModal').style.display = 'flex';
+  }
+
+  function openEditModalByFilteredIndex(idx) {
+    const item = activeFilteredList[idx];
+    if (item) openEditModalWithItem(item);
+  }
+
+  function openEditModalWithItem(item) {
+    editingOriginalWord = item;
+    document.getElementById('modalTitle').textContent = `✏️ 快速修改词汇 · ${item.uzbek}`;
+    document.getElementById('modalSaveBtn').textContent = "保存修改";
+    document.getElementById('modalUzbek').value = item.uzbek || "";
+    document.getElementById('modalChinese').value = item.chinese || "";
+    document.getElementById('modalLevel').value = item.level || "A1";
+    document.getElementById('modalCategory').value = item.category || "";
+    document.getElementById('modalType').value = item.type || "";
+    document.getElementById('modalExUz').value = item.exUz || "";
+    document.getElementById('modalExCn').value = item.exCn || "";
+    document.getElementById('wordModal').style.display = 'flex';
+  }
+
+  function closeWordModal() {
+    document.getElementById('wordModal').style.display = 'none';
+    editingOriginalWord = null;
+  }
+
+  function saveWordModal() {
+    const uzbek = document.getElementById('modalUzbek').value.trim();
+    const chinese = document.getElementById('modalChinese').value.trim();
+    if (!uzbek || !chinese) { alert('请填写乌兹别克语与中文释义！'); return; }
+
+    const level = document.getElementById('modalLevel').value;
+    const category = document.getElementById('modalCategory').value.trim() || '自定义';
+    const type = document.getElementById('modalType').value.trim() || '常用语';
+    const exUz = document.getElementById('modalExUz').value.trim();
+    const exCn = document.getElementById('modalExCn').value.trim();
+
+    if (editingOriginalWord) {
+      // 修改已有词汇
+      editingOriginalWord.uzbek = uzbek;
+      editingOriginalWord.chinese = chinese;
+      editingOriginalWord.level = level;
+      editingOriginalWord.category = category;
+      editingOriginalWord.type = type;
+      editingOriginalWord.exUz = exUz;
+      editingOriginalWord.exCn = exCn;
+    } else {
+      // 新增词汇 (同样检查去重)
+      const existing = vocabList.find(i => i.uzbek.toLowerCase() === uzbek.toLowerCase());
+      if (existing) {
+        if (!confirm(`词库中已存在单词 "${uzbek}"，确定要用新内容覆盖它吗？`)) return;
+        existing.chinese = chinese;
+        existing.level = level;
+        existing.category = category;
+        existing.type = type;
+        existing.exUz = exUz;
+        existing.exCn = exCn;
+      } else {
+        vocabList.push({
+          no: vocabList.length + 1,
+          uzbek,
+          chinese,
+          level,
+          category,
+          type,
+          exUz,
+          exCn
+        });
+      }
+    }
+
+    saveToStorage();
+    closeWordModal();
+    renderLevelPills();
+    renderCategoryPills();
+    renderAll();
+  }
+
+  // 键盘快捷键监听
+  document.addEventListener('keydown', function(e) {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+    const cardContainer = document.getElementById('cardViewContainer');
+    if (cardContainer && cardContainer.style.display === 'flex') {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        flipCard();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextCard();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevCard();
+      } else if (e.code === 'Enter') {
+        e.preventDefault();
+        speakCardWord();
+      }
+    }
+  });
+
+  document.getElementById('searchInput').addEventListener('input', renderAll);
+  renderLevelPills();
+  renderCategoryPills();
+  renderAll();
+</script>
+</body>
+</html>
