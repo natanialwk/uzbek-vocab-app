@@ -3299,24 +3299,38 @@
 ];
 
   const STORAGE_KEY = 'uzbek_vocab_data_v300';
-  let vocabList = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [...DEFAULT_VOCAB];
+  let vocabList = [...DEFAULT_VOCAB];
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 50) {
+        vocabList = parsed;
+      }
+    }
+  } catch(e) {
+    console.warn("Storage load error:", e);
+  }
+
   let activeLevel = "全部";
   let activeCategory = "全部";
   let currentCardIndex = 0;
   let activeFilteredList = [];
 
   function saveToStorage() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabList));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabList));
+    } catch(e) {}
   }
 
   function getFilteredList() {
-    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
     return vocabList.filter(item => {
       const matchLevel = (activeLevel === "全部" || item.level === activeLevel);
       const matchCat = (activeCategory === "全部" || item.category === activeCategory);
       const matchSearch = !search || 
-        item.uzbek.toLowerCase().includes(search) || 
-        item.chinese.toLowerCase().includes(search) ||
+        (item.uzbek && item.uzbek.toLowerCase().includes(search)) || 
+        (item.chinese && item.chinese.toLowerCase().includes(search)) ||
         (item.exUz && item.exUz.toLowerCase().includes(search)) ||
         (item.exCn && item.exCn.toLowerCase().includes(search)) ||
         (item.type && item.type.toLowerCase().includes(search));
@@ -3328,6 +3342,7 @@
   function renderLevelPills() {
     const levels = ["全部", "A1", "A2", "B1", "B2"];
     const container = document.getElementById('levelPills');
+    if (!container) return;
     
     container.innerHTML = levels.map(lvl => {
       let count = 0;
@@ -3348,6 +3363,7 @@
   function renderCategoryPills() {
     const categories = ["全部", ...new Set(vocabList.map(item => item.category || "其他"))];
     const container = document.getElementById('categoryPills');
+    if (!container) return;
     
     container.innerHTML = categories.map(cat => {
       let count = 0;
@@ -3381,6 +3397,8 @@
 
   function renderTable() {
     const tbody = document.getElementById('vocabTableBody');
+    if (!tbody) return;
+
     if (activeFilteredList.length === 0) {
       tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 40px;">没有找到符合条件的词汇，请更换筛选条件</td></tr>`;
       return;
@@ -3392,7 +3410,7 @@
         <td>
           <div class="uzbek-word">
             <span>${item.uzbek}</span>
-            <button class="speak-btn" onclick="speakText('${item.uzbek.replace(/'/g, "\\\'")}')" title="发音">🔊</button>
+            <button class="speak-btn" onclick="speakByIndex(${idx})" title="发音">🔊</button>
           </div>
         </td>
         <td><strong>${item.chinese}</strong></td>
@@ -3417,6 +3435,7 @@
   // 抽认卡功能
   function renderCard() {
     const cardEl = document.getElementById('flashcard');
+    if (!cardEl) return;
     cardEl.classList.remove('flipped');
 
     if (activeFilteredList.length === 0) {
@@ -3456,7 +3475,8 @@
   }
 
   function flipCard() {
-    document.getElementById('flashcard').classList.toggle('flipped');
+    const card = document.getElementById('flashcard');
+    if (card) card.classList.toggle('flipped');
   }
 
   function nextCard() {
@@ -3471,9 +3491,14 @@
     renderCard();
   }
 
+  function speakByIndex(idx) {
+    const item = activeFilteredList[idx];
+    if (item && item.uzbek) speakText(item.uzbek);
+  }
+
   function speakCardWord() {
-    const text = document.getElementById('cardUzbekText').textContent;
-    if (text && text !== "暂无词汇") speakText(text);
+    const cur = activeFilteredList[currentCardIndex];
+    if (cur && cur.uzbek) speakText(cur.uzbek);
   }
 
   function shuffleCurrentList() {
@@ -3508,8 +3533,10 @@
 
   function updateStatusBar() {
     const statusText = `等级：${activeLevel} · 主题：${activeCategory}`;
-    document.getElementById('filterStatus').textContent = statusText;
-    document.getElementById('vocabCount').textContent = activeFilteredList.length;
+    const el1 = document.getElementById('filterStatus');
+    const el2 = document.getElementById('vocabCount');
+    if (el1) el1.textContent = statusText;
+    if (el2) el2.textContent = activeFilteredList.length;
   }
 
   function renderAll() {
