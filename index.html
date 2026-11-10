@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乌兹别克语 A1 核心词汇与常用语学习库</title>
+  <!-- 引入 SheetJS 解析 Excel 文件 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px; min-height: 100vh; }
+    .container { max-width: 1040px; margin: 0 auto; }
+    
+    header { text-align: center; margin-bottom: 24px; }
+    header h1 { font-size: 28px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+    header p { color: var(--text-muted); font-size: 15px; }
+
+    /* 模式切换 (列表 vs 抽认卡) */
+    .view-switcher { display: flex; justify-content: center; margin-bottom: 20px; }
+    .switch-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; }
+    .switch-btn { padding: 8px 24px; border-radius: 7px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; color: #64748b; background: transparent; transition: all 0.2s; }
+    .switch-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .action-bar { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    
+    .btn { padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: white; border-color: var(--border); color: #334155; }
+    .btn-outline:hover { background: #f1f5f9; }
+    
+    .search-box { position: relative; flex: 1; min-width: 240px; max-width: 380px; }
+    .search-box input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; outline: none; }
+    .search-box input:focus { border-color: var(--primary); }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; overflow-x: auto; }
+    .tab-btn { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; background: transparent; color: var(--text-muted); white-space: nowrap; }
+    .tab-btn.active { background: #ecfdf5; color: var(--primary-dark); border-color: #a7f3d0; }
+
+    /* 表格视图 */
+    .table-container { background: white; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 650px; }
+    th { background: #f8fafc; padding: 12px 16px; font-weight: 600; color: #475569; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background-color: #f8fafc; }
+    
+    .uzbek-word { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .speak-btn { background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px; padding: 2px 4px; border-radius: 4px; }
+    .speak-btn:hover { background: #ecfdf5; }
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; display: inline-block; }
+    .example-uz { font-size: 13px; color: #334155; margin-bottom: 2px; }
+    .example-cn { font-size: 12px; color: #94a3b8; }
+    .del-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; }
+    .del-btn:hover { opacity: 1; }
+
+    /* 抽认卡视图 (Flashcard) */
+    .flashcard-section { display: none; flex-direction: column; align-items: center; margin-top: 10px; }
+    .card-scene { width: 100%; max-width: 520px; height: 320px; perspective: 1000px; margin-bottom: 20px; }
+    .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border); background: white; }
+    .card-face.back { transform: rotateY(180deg); background: #fbfdfc; }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: center; }
+    .card-center { text-align: center; margin: auto 0; }
+    .card-uzbek { font-size: 32px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .card-chinese { font-size: 26px; font-weight: 800; color: var(--primary-dark); }
+    .card-tip { text-align: center; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+    .card-tip kbd { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; font-size: 11px; color: #475569; font-weight: 600; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    
+    .card-controls { display: flex; gap: 16px; align-items: center; }
+    .ctrl-btn { background: white; border: 1px solid var(--border); border-radius: 50%; width: 48px; height: 48px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .ctrl-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .progress-info { font-size: 15px; font-weight: 600; color: #64748b; }
+
+    /* 弹窗 */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
+    .modal { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 460px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .modal h3 { font-size: 18px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>乌兹别克语 A1 核心词汇与常用语</h1>
+    <p>纯拉丁字母 · 中文简体对照 · 支持 Excel 批量导入 · 抽认卡记忆</p>
+  </header>
+
+  <!-- 模式切换 -->
+  <div class="view-switcher">
+    <div class="switch-container">
+      <button class="switch-btn active" id="btnListView" onclick="switchView('list')">📋 列表模式</button>
+      <button class="switch-btn" id="btnCardView" onclick="switchView('card')">🗂️ 抽认卡 (Flashcard)</button>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索乌兹别克语、中文或例句...">
+    </div>
+    <div class="btn-group">
+      <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
+      <button class="btn btn-outline" onclick="document.getElementById('excelFileInput').click()">📥 导入 Excel / CSV</button>
+      <button class="btn btn-outline" onclick="clearAllData()">🗑️ 清空重置</button>
+      <button class="btn btn-primary" onclick="openAddModal()">＋ 手动新增</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="categoryTabs"></div>
+
+  <!-- 视图 1：表格列表 -->
+  <div class="table-container" id="listViewContainer">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 24%;">乌兹别克语 (Latin)</th>
+          <th style="width: 22%;">中文释义 (简体)</th>
+          <th style="width: 14%;">分类</th>
+          <th style="width: 12%;">词性 / 场景</th>
+          <th>实用例句与用法</th>
+          <th style="width: 6%; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="vocabTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- 视图 2：抽认卡 -->
+  <div class="flashcard-section" id="cardViewContainer">
+    <div class="card-scene">
+      <div class="card" id="flashcard" onclick="flipCard()">
+        <!-- 正面 -->
+        <div class="card-face front">
+          <div class="card-header">
+            <span class="badge" id="cardCategoryFront">分类</span>
+            <button class="speak-btn" onclick="event.stopPropagation(); speakCardWord();" title="朗读">🔊</button>
+          </div>
+          <div class="card-center">
+            <div class="card-uzbek" id="cardUzbekText">Salom</div>
+            <span class="badge" id="cardTypeFront" style="background:#e0f2fe; color:#0369a1;">问候</span>
+          </div>
+          <div class="card-tip">点击翻面 👆 · 快捷键：<kbd>Space</kbd> 翻转 · <kbd>→</kbd> 下一个 · <kbd>←</kbd> 上一个 · <kbd>Enter</kbd> 读音</div>
+        </div>
+        <!-- 背面 -->
+        <div class="card-face back">
+          <div class="card-header">
+            <span class="badge" id="cardCategoryBack">分类</span>
+            <span style="font-size: 13px; color: #94a3b8;">背面</span>
+          </div>
+          <div class="card-center">
+            <div class="card-chinese" id="cardChineseText">你好</div>
+            <div class="example-uz" id="cardExUz" style="margin-top: 14px;">-</div>
+            <div class="example-cn" id="cardExCn">-</div>
+          </div>
+          <div class="card-tip">点击翻回 👆 · 快捷键：<kbd>Space</kbd> 翻转 · <kbd>→</kbd> 下一个 · <kbd>←</kbd> 上一个</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 抽认卡切换控制条 -->
+    <div class="card-controls">
+      <button class="ctrl-btn" onclick="prevCard()" title="上一个 (←)">←</button>
+      <div class="progress-info" id="cardProgress">1 / 10</div>
+      <button class="ctrl-btn" onclick="nextCard()" title="下一个 (→)">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- 手动新增弹窗 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>新增乌语词汇 / 常用语</h3>
+    <div class="form-group">
+      <label>乌兹别克语 (Latin)</label>
+      <input type="text" id="newUzbek" placeholder="例如：Quyoshli">
+    </div>
+    <div class="form-group">
+      <label>中文释义 (简体)</label>
+      <input type="text" id="newChinese" placeholder="例如：晴朗的、出太阳">
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <input type="text" id="newCategory" placeholder="例如：天气与季节">
+    </div>
+    <div class="form-group">
+      <label>词性 / 使用场景</label>
+      <input type="text" id="newType" placeholder="例如：形容词、日常问候">
+    </div>
+    <div class="form-group">
+      <label>乌语实用例句 (选填)</label>
+      <input type="text" id="newExUz" placeholder="例如：Bugun havo quyoshli.">
+    </div>
+    <div class="form-group">
+      <label>中文例句翻译 (选填)</label>
+      <input type="text" id="newExCn" placeholder="例如：今天天气很晴朗。">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAddModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveNewWord()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 预设基础核心词汇 (纯中文简体)
+  const DEFAULT_VOCAB = [
+    { uzbek: "Salom", chinese: "你好", category: "问候与礼貌", type: "问候", exUz: "Salom! Qandaysiz?", exCn: "你好！你好吗？" },
+    { uzbek: "Assalomu alaykum", chinese: "您好（正式敬语）", category: "问候与礼貌", type: "正式问候", exUz: "Assalomu alaykum, ustoz!", exCn: "老师，您好！" },
+    { uzbek: "Rahmat", chinese: "谢谢", category: "问候与礼貌", type: "礼貌用语", exUz: "Katta rahmat!", exCn: "非常感谢！" },
+    { uzbek: "Quyoshli", chinese: "晴朗的、出太阳", category: "天气与季节", type: "形容词", exUz: "Bugun havo quyoshli.", exCn: "今天天气晴朗。" },
+    { uzbek: "Bulutli", chinese: "多云的、阴天", category: "天气与季节", type: "形容词", exUz: "Ertaga bulutli bo'ladi.", exCn: "明天是阴天。" },
+    { uzbek: "Bahor", chinese: "春季", category: "天气与季节", type: "名词", exUz: "Bahorda gullar ochiladi.", exCn: "春天花儿绽放。" },
+    { uzbek: "Soyabon", chinese: "雨伞", category: "服饰物品", type: "名词", exUz: "Soyabon olishni unutmang.", exCn: "别忘了带雨伞。" },
+    { uzbek: "Albatta", chinese: "当然、必定", category: "情态词汇", type: "情态词", exUz: "Albatta, yordam beraman.", exCn: "当然，我一定会帮忙。" },
+    { uzbek: "Zilzila", chinese: "地震", category: "自然与环境", type: "名词", exUz: "Kuchli zilzila sodir bo'ldi.", exCn: "发生了强烈的地震。" }
+  ];
+
+  let vocabList = JSON.parse(localStorage.getItem('uzbek_vocab_data_zh')) || DEFAULT_VOCAB;
+  let activeCategory = "全部";
+  let currentCardIndex = 0;
+  let activeFilteredList = [];
+
+  function saveToStorage() {
+    localStorage.setItem('uzbek_vocab_data_zh', JSON.stringify(vocabList));
+  }
+
+  function getFilteredList() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    return vocabList.filter(item => {
+      const matchCat = (activeCategory === "全部" || item.category === activeCategory);
+      const matchSearch = !search || 
+        item.uzbek.toLowerCase().includes(search) || 
+        item.chinese.toLowerCase().includes(search) ||
+        (item.exUz && item.exUz.toLowerCase().includes(search)) ||
+        (item.exCn && item.exCn.toLowerCase().includes(search));
+      return matchCat && matchSearch;
+    });
+  }
+
+  function renderCategories() {
+    const categories = ["全部", ...new Set(vocabList.map(item => item.category || "其他"))];
+    const container = document.getElementById('categoryTabs');
+    container.innerHTML = categories.map(cat => `
+      <button class="tab-btn ${cat === activeCategory ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>
+    `).join('');
+  }
+
+  function filterCategory(cat) {
+    activeCategory = cat;
+    currentCardIndex = 0;
+    renderCategories();
+    renderAll();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('vocabTableBody');
+    if (activeFilteredList.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">没有找到符合条件的词汇</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = activeFilteredList.map((item, idx) => `
+      <tr>
+        <td>
+          <div class="uzbek-word">
+            ${item.uzbek}
+            <button class="speak-btn" onclick="speakText('${item.uzbek}')" title="发音">🔊</button>
+          </div>
+        </td>
+        <td><strong>${item.chinese}</strong></td>
+        <td><span class="badge">${item.category || "一般"}</span></td>
+        <td><span class="badge" style="background:#e0f2fe; color:#0369a1;">${item.type || "词汇"}</span></td>
+        <td>
+          <div class="example-uz">${item.exUz || "-"}</div>
+          <div class="example-cn">${item.exCn || ""}</div>
+        </td>
+        <td style="text-align: center;">
+          <button class="del-btn" onclick="deleteWord(${idx})" title="删除">✕</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // 抽认卡功能
+  function renderCard() {
+    const cardEl = document.getElementById('flashcard');
+    cardEl.classList.remove('flipped');
+
+    if (activeFilteredList.length === 0) {
+      document.getElementById('cardUzbekText').textContent = "暂无词汇";
+      document.getElementById('cardChineseText').textContent = "请调整搜索条件或新增词汇";
+      document.getElementById('cardExUz').textContent = "-";
+      document.getElementById('cardExCn').textContent = "-";
+      document.getElementById('cardProgress').textContent = "0 / 0";
+      return;
+    }
+
+    if (currentCardIndex >= activeFilteredList.length) currentCardIndex = 0;
+    if (currentCardIndex < 0) currentCardIndex = activeFilteredList.length - 1;
+
+    const cur = activeFilteredList[currentCardIndex];
+    document.getElementById('cardUzbekText').textContent = cur.uzbek;
+    document.getElementById('cardCategoryFront').textContent = cur.category || "词汇";
+    document.getElementById('cardTypeFront').textContent = cur.type || "词性";
+
+    document.getElementById('cardChineseText').textContent = cur.chinese;
+    document.getElementById('cardCategoryBack').textContent = cur.category || "词汇";
+    document.getElementById('cardExUz').textContent = cur.exUz || "";
+    document.getElementById('cardExCn').textContent = cur.exCn || "";
+    document.getElementById('cardProgress').textContent = `${currentCardIndex + 1} / ${activeFilteredList.length}`;
+  }
+
+  function flipCard() {
+    document.getElementById('flashcard').classList.toggle('flipped');
+  }
+
+  function nextCard() {
+    if (activeFilteredList.length === 0) return;
+    currentCardIndex = (currentCardIndex + 1) % activeFilteredList.length;
+    renderCard();
+  }
+
+  function prevCard() {
+    if (activeFilteredList.length === 0) return;
+    currentCardIndex = (currentCardIndex - 1 + activeFilteredList.length) % activeFilteredList.length;
+    renderCard();
+  }
+
+  function speakCardWord() {
+    const text = document.getElementById('cardUzbekText').textContent;
+    if (text && text !== "暂无词汇") speakText(text);
+  }
+
+  // 模式切换 (列表 vs 抽认卡)
+  function switchView(view) {
+    const listBtn = document.getElementById('btnListView');
+    const cardBtn = document.getElementById('btnCardView');
+    const listContainer = document.getElementById('listViewContainer');
+    const cardContainer = document.getElementById('cardViewContainer');
+
+    if (view === 'list') {
+      listBtn.classList.add('active');
+      cardBtn.classList.remove('active');
+      listContainer.style.display = 'block';
+      cardContainer.style.display = 'none';
+    } else {
+      cardBtn.classList.add('active');
+      listBtn.classList.remove('active');
+      listContainer.style.display = 'none';
+      cardContainer.style.display = 'flex';
+      renderCard();
+    }
+  }
+
+  function renderAll() {
+    activeFilteredList = getFilteredList();
+    renderTable();
+    renderCard();
+  }
+
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'uz-UZ';
+      window.speechSynthesis.speak(utter);
+    }
+  }
+
+  function deleteWord(idx) {
+    if (confirm("确定要删除这个词汇吗？")) {
+      const targetItem = activeFilteredList[idx];
+      vocabList = vocabList.filter(item => item !== targetItem);
+      saveToStorage();
+      renderCategories();
+      renderAll();
+    }
+  }
+
+  function clearAllData() {
+    if (confirm("确定要清空并恢复默认词汇吗？导入的数据将会被清除。")) {
+      vocabList = [...DEFAULT_VOCAB];
+      saveToStorage();
+      activeCategory = "全部";
+      currentCardIndex = 0;
+      renderCategories();
+      renderAll();
+    }
+  }
+
+  // Excel 导入解析
+  document.getElementById('excelFileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        let count = 0;
+        rows.forEach(r => {
+          const uzbek = r['乌兹别克语 (Uzbek)'] || r['乌语'] || r['Uzbek'] || r['uzbek'] || '';
+          const chinese = r['中文简体 (Chinese)'] || r['中文'] || r['Chinese'] || r['chinese'] || '';
+          const category = r['分类 (Category)'] || r['分类'] || r['Category'] || '导入常用语';
+          const type = r['词性 / 使用场景 (Context)'] || r['词性'] || r['Type'] || '常用语';
+          const exUz = r['实用例句 (Uzbek Example)'] || r['乌语例句'] || r['ExampleUz'] || '';
+          const exCn = r['中文例句 (Chinese Translation)'] || r['中文例句'] || r['ExampleCn'] || '';
+
+          if (uzbek && chinese) {
+            vocabList.push({ uzbek, chinese, category, type, exUz, exCn });
+            count++;
+          }
+        });
+
+        saveToStorage();
+        renderCategories();
+        renderAll();
+        alert(`已成功导入 ${count} 条词汇与常用语！列表与抽认卡已全部更新。`);
+      } catch (err) {
+        alert("导入解析失败，请确认表格文件格式！");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = '';
+  });
+
+  // 手动弹窗控制
+  function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+  function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+  function saveNewWord() {
+    const uzbek = document.getElementById('newUzbek').value.trim();
+    const chinese = document.getElementById('newChinese').value.trim();
+    if (!uzbek || !chinese) { alert('请填写乌兹别克语与中文释义！'); return; }
+
+    vocabList.push({
+      uzbek,
+      chinese,
+      category: document.getElementById('newCategory').value.trim() || '自定义',
+      type: document.getElementById('newType').value.trim() || '常用语',
+      exUz: document.getElementById('newExUz').value.trim(),
+      exCn: document.getElementById('newExCn').value.trim()
+    });
+
+    saveToStorage();
+    closeAddModal();
+    renderCategories();
+    renderAll();
+  }
+
+  // 🚀 新增：键盘快捷键支持 (背诵模式神器)
+  document.addEventListener('keydown', function(e) {
+    // 如果用户正在输入框里打字（例如正在搜索或填写弹窗），不触发卡片快捷键
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+    // 只有在抽认卡模式下才响应快捷键
+    const cardContainer = document.getElementById('cardViewContainer');
+    if (cardContainer && cardContainer.style.display === 'flex') {
+      if (e.code === 'Space') {
+        e.preventDefault(); // 防止按空格键时页面向下滚动
+        flipCard();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextCard();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevCard();
+      } else if (e.code === 'Enter') {
+        e.preventDefault();
+        speakCardWord();
+      }
+    }
+  });
+
+  document.getElementById('searchInput').addEventListener('input', renderAll);
+  renderCategories();
+  renderAll();
+</script>
+</body>
+</html>
