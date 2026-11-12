@@ -134,6 +134,64 @@
     .ctrl-btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
     .progress-info { font-size: 15px; font-weight: 700; color: #475569; min-width: 100px; text-align: center; }
 
+    /* 视图 3：随身听 / 自动播放 (磨耳朵模式) */
+    .player-section { display: none; flex-direction: column; align-items: center; margin-top: 10px; width: 100%; }
+    .player-card { width: 100%; max-width: 620px; background: white; border: 1px solid var(--border); border-radius: 20px; padding: 26px; box-shadow: 0 10px 28px rgba(0,0,0,0.06); display: flex; flex-direction: column; }
+    .player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .player-status-indicator { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+    .player-status-indicator.active { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+    .player-status-indicator.active .status-dot { background: #10b981; animation: statusPulse 1.2s infinite; }
+    @keyframes statusPulse { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
+
+    .player-word-display { text-align: center; padding: 14px 10px 20px; border-bottom: 1px dashed #e2e8f0; }
+    .player-uzbek { font-size: 36px; font-weight: 800; color: #0f172a; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.25s ease; }
+    .player-uzbek.speaking { color: #059669; transform: scale(1.05); text-shadow: 0 2px 10px rgba(16, 185, 129, 0.2); }
+    .sound-wave-icon { font-size: 20px; opacity: 0; transition: opacity 0.2s; }
+    .player-uzbek.speaking .sound-wave-icon { opacity: 1; animation: waveBounce 0.8s infinite alternate; }
+    @keyframes waveBounce { from { transform: scale(0.95); } to { transform: scale(1.15); } }
+
+    .player-chinese { font-size: 24px; font-weight: 700; color: #334155; margin-bottom: 14px; transition: all 0.25s ease; }
+    .player-chinese.speaking { color: #2563eb; transform: scale(1.04); text-shadow: 0 2px 10px rgba(37, 99, 235, 0.2); }
+    .player-example-box { background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-top: 4px; display: inline-block; max-width: 92%; }
+    .player-ex-uz { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
+    .player-ex-cn { font-size: 12px; color: #64748b; }
+
+    /* 进度条 */
+    .player-progress-area { margin: 18px 0 14px; }
+    .progress-bar-container { width: 100%; height: 8px; background: #f1f5f9; border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 6px; transition: width 0.3s ease; }
+    .progress-labels { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12px; font-weight: 600; color: #64748b; }
+    .repeat-badge { background: #f1f5f9; padding: 2px 8px; border-radius: 10px; color: #475569; }
+
+    /* 控制区 */
+    .player-main-controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 8px 0 18px; }
+    .ctrl-btn-primary { width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #047857); border: none; color: white; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); transition: all 0.2s; }
+    .ctrl-btn-primary:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5); }
+    .ctrl-btn-primary:active { transform: scale(0.96); }
+    .ctrl-btn-secondary { width: 42px; height: 42px; border-radius: 50%; background: white; border: 1px solid var(--border); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #475569; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: all 0.2s; }
+    .ctrl-btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+
+    /* 设置参数条 */
+    .player-settings-panel { background: #fbfdfc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 16px; margin-top: 4px; }
+    .settings-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .setting-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; }
+    .setting-title { white-space: nowrap; font-size: 12px; }
+    .pill-group { display: inline-flex; gap: 3px; background: #e2e8f0; padding: 3px; border-radius: 8px; }
+    .setting-pill { border: none; background: transparent; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s; }
+    .setting-pill:hover { background: rgba(255,255,255,0.6); }
+    .setting-pill.active { background: white; color: var(--primary-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 700; }
+
+    /* 播放列表队列 */
+    .player-queue-container { width: 100%; max-width: 620px; margin-top: 16px; background: white; border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .queue-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; color: #475569; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; margin-bottom: 8px; }
+    .queue-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+    .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+    .queue-item:hover { background: #f8fafc; }
+    .queue-item.active { background: #ecfdf5; border-left: 3px solid #10b981; font-weight: 700; }
+    .queue-item-uz { font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .queue-item-cn { color: #64748b; font-size: 12px; }
+
     /* 弹窗 */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; backdrop-filter: blur(2px); }
     .modal { background: white; padding: 26px; border-radius: 14px; width: 100%; max-width: 480px; box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
@@ -149,6 +207,10 @@
       .card-scene { height: 320px; }
       .card-uzbek { font-size: 28px; }
       .card-chinese { font-size: 22px; }
+      .player-uzbek { font-size: 28px; }
+      .player-chinese { font-size: 20px; }
+      .settings-row { flex-direction: column; gap: 8px; }
+      .pill-group { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -166,6 +228,7 @@
     <div class="switch-container">
       <button class="switch-btn active" id="btnListView" onclick="switchView('list')">📋 词汇列表</button>
       <button class="switch-btn" id="btnCardView" onclick="switchView('card')">🗂️ 抽认卡刷词</button>
+      <button class="switch-btn" id="btnPlayerView" onclick="switchView('player')">🎧 自动磨耳朵 (听力模式)</button>
     </div>
   </div>
 
@@ -293,6 +356,108 @@
       <button class="ctrl-btn" onclick="prevCard()" title="上一个 (←)">←</button>
       <div class="progress-info" id="cardProgress">1 / 1200</div>
       <button class="ctrl-btn" onclick="nextCard()" title="下一个 (→)">→</button>
+    </div>
+  </div>
+
+  <!-- 视图 3：随身听 / 自动播放 (磨耳朵模式) -->
+  <div class="player-section" id="playerViewContainer">
+    <!-- 播放器主卡片 -->
+    <div class="player-card">
+      <div class="player-header">
+        <div class="card-tags">
+          <span class="level-badge" id="playerLevel">A1</span>
+          <span class="badge" id="playerCategory">常用语</span>
+          <span class="badge" id="playerType" style="background:#e0f2fe; color:#0369a1;">情境</span>
+        </div>
+        <div class="player-status-indicator" id="playerStageIndicator">
+          <span class="status-dot"></span>
+          <span id="playerStatusText">准备就绪</span>
+        </div>
+      </div>
+
+      <!-- 核心大字展示区 -->
+      <div class="player-word-display">
+        <div class="player-uzbek" id="playerUzbekWrap">
+          <span id="playerUzbekWord">Salom</span>
+          <span class="sound-wave-icon" id="soundWaveIcon">🔊</span>
+        </div>
+        <div class="player-chinese" id="playerChineseText">你好</div>
+        <div class="player-example-box" id="playerExampleBox">
+          <div class="player-ex-uz" id="playerExUz">Salom! Qandaysiz?</div>
+          <div class="player-ex-cn" id="playerExCn">你好！你好吗？</div>
+        </div>
+      </div>
+
+      <!-- 播放进度条与计数 -->
+      <div class="player-progress-area">
+        <div class="progress-bar-container" onclick="seekPlayer(event)" id="progressBarContainer" title="点击跳转进度">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+        <div class="progress-labels">
+          <span id="playerCurrentPos">第 1 / 1200 词</span>
+          <span class="repeat-badge" id="playerRepeatBadge">第 1 / 2 遍</span>
+        </div>
+      </div>
+
+      <!-- 主控制按钮区 -->
+      <div class="player-main-controls">
+        <button class="ctrl-btn-secondary" onclick="prevPlayerWord()" title="上一个词 (快捷键 ←)">⏮️</button>
+        <button class="ctrl-btn-primary" id="playerPlayBtn" onclick="togglePlayer()" title="开始连播 / 暂停 (快捷键 Space)">
+          <span id="playerPlayIcon">▶️</span>
+        </button>
+        <button class="ctrl-btn-secondary" onclick="nextPlayerWord()" title="下一个词 (快捷键 →)">⏭️</button>
+      </div>
+
+      <!-- 快捷参数设置栏 (语速、重复遍数、朗读顺序、停顿间隔) -->
+      <div class="player-settings-panel">
+        <div class="settings-row">
+          <div class="setting-item">
+            <span class="setting-title">⚡ 语速调节：</span>
+            <div class="pill-group" id="speedPills">
+              <button class="setting-pill" onclick="setPlayerSpeed(0.75, this)">0.75x 慢速</button>
+              <button class="setting-pill active" onclick="setPlayerSpeed(1.0, this)">1.0x 正常</button>
+              <button class="setting-pill" onclick="setPlayerSpeed(1.25, this)">1.25x 稍快</button>
+              <button class="setting-pill" onclick="setPlayerSpeed(1.5, this)">1.5x 快速</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-title">🔁 每词重复：</span>
+            <div class="pill-group" id="repeatPills">
+              <button class="setting-pill" onclick="setPlayerRepeat(1, this)">读 1 遍</button>
+              <button class="setting-pill active" onclick="setPlayerRepeat(2, this)">读 2 遍 (推荐)</button>
+              <button class="setting-pill" onclick="setPlayerRepeat(3, this)">读 3 遍</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-row" style="margin-top: 10px;">
+          <div class="setting-item">
+            <span class="setting-title">🗣️ 朗读内容：</span>
+            <div class="pill-group" id="orderPills">
+              <button class="setting-pill active" onclick="setPlayerOrder('uz-cn', this)">乌语 ➔ 中文</button>
+              <button class="setting-pill" onclick="setPlayerOrder('uz-only', this)">仅读乌语</button>
+              <button class="setting-pill" onclick="setPlayerOrder('cn-uz', this)">中文 ➔ 乌语</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-title">⏱️ 词间停顿：</span>
+            <div class="pill-group" id="intervalPills">
+              <button class="setting-pill" onclick="setPlayerInterval(1000, this)">1.0 秒</button>
+              <button class="setting-pill active" onclick="setPlayerInterval(2000, this)">2.0 秒 (跟读)</button>
+              <button class="setting-pill" onclick="setPlayerInterval(3000, this)">3.0 秒</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 播放队列列表（可点击直接切换播放） -->
+    <div class="player-queue-container">
+      <div class="queue-header">
+        <span>📑 当前连播队列 (<span id="queueCount">0</span> 词 · 遵循上方等级与主题筛选)</span>
+        <button class="btn btn-outline" style="padding: 3px 8px; font-size: 11px;" onclick="shuffleCurrentList()">🔀 打乱乱序</button>
+      </div>
+      <div class="queue-list" id="queueList"></div>
     </div>
   </div>
 </div>
@@ -669,28 +834,473 @@
     }
     currentCardIndex = 0;
     currentPage = 1;
+    playerIndex = 0;
     renderTable();
     renderCard();
+    renderPlayerView();
+    if (playerPlaying) playCurrentWordSequence();
   }
 
+  let currentActiveView = 'list';
+
   function switchView(view) {
+    currentActiveView = view;
     const listBtn = document.getElementById('btnListView');
     const cardBtn = document.getElementById('btnCardView');
+    const playerBtn = document.getElementById('btnPlayerView');
     const listContainer = document.getElementById('listViewContainer');
     const cardContainer = document.getElementById('cardViewContainer');
+    const playerContainer = document.getElementById('playerViewContainer');
+
+    listBtn.classList.remove('active');
+    cardBtn.classList.remove('active');
+    playerBtn.classList.remove('active');
+    listContainer.style.display = 'none';
+    cardContainer.style.display = 'none';
+    playerContainer.style.display = 'none';
+
+    if (view !== 'player' && playerPlaying) {
+      pausePlayer();
+    }
 
     if (view === 'list') {
       listBtn.classList.add('active');
-      cardBtn.classList.remove('active');
       listContainer.style.display = 'block';
-      cardContainer.style.display = 'none';
-    } else {
+    } else if (view === 'card') {
       cardBtn.classList.add('active');
-      listBtn.classList.remove('active');
-      listContainer.style.display = 'none';
       cardContainer.style.display = 'flex';
       renderCard();
+    } else if (view === 'player') {
+      playerBtn.classList.add('active');
+      playerContainer.style.display = 'flex';
+      renderPlayerView();
     }
+  }
+
+  // 中文语音合成引擎增强与兼容修复
+  let cachedChineseVoices = [];
+  function loadChineseVoices() {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return;
+      cachedChineseVoices = voices.filter(v => {
+        const lang = (v.lang || '').toLowerCase();
+        const name = (v.name || '').toLowerCase();
+        return lang.includes('zh') || lang.includes('cmn') || lang.includes('yue') ||
+               name.includes('chinese') || name.includes('tingting') || name.includes('xiaoxiao') || 
+               name.includes('sinji') || name.includes('meijia') || name.includes('putonghua');
+      });
+    } catch (e) {
+      console.warn("loadChineseVoices error:", e);
+    }
+  }
+
+  if ('speechSynthesis' in window) {
+    loadChineseVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadChineseVoices;
+    }
+  }
+
+  function getBestChineseVoice() {
+    if (!cachedChineseVoices || !cachedChineseVoices.length) loadChineseVoices();
+    if (!cachedChineseVoices || !cachedChineseVoices.length) return null;
+    return cachedChineseVoices.find(v => (v.lang && (v.lang === 'zh-CN' || v.lang === 'zh_CN'))) ||
+           cachedChineseVoices.find(v => (v.name && v.name.includes('Tingting'))) ||
+           cachedChineseVoices.find(v => (v.name && v.name.includes('Xiaoxiao'))) ||
+           cachedChineseVoices[0];
+  }
+
+  function getCleanChineseText(raw) {
+    if (!raw) return '';
+    let text = raw.replace(/\(.*?\)/g, '').replace(/（.*?）/g, '').trim();
+    if (text.includes('/')) {
+      const parts = text.split('/');
+      text = parts[0].trim();
+    }
+    return text || raw;
+  }
+
+  // 随身听 / 自动播放 (磨耳朵模式) 核心状态
+  let playerPlaying = false;
+  let playerIndex = 0;
+  let playerSpeed = 1.0;
+  let playerRepeat = 2; // 每词默认读 2 遍
+  let playerOrder = 'uz-cn'; // 'uz-cn' | 'uz-only' | 'cn-uz'
+  let playerInterval = 2000; // 停顿间隔 2000ms
+  let currentRepeatRound = 1;
+  let playerAudioObj = null;
+  let playerTimeoutTimer = null;
+
+  function renderPlayerView() {
+    if (activeFilteredList.length === 0) {
+      document.getElementById('playerUzbekWord').textContent = "暂无词汇";
+      document.getElementById('playerChineseText').textContent = "请调整筛选条件";
+      document.getElementById('playerExUz').textContent = "-";
+      document.getElementById('playerExCn').textContent = "-";
+      document.getElementById('playerCurrentPos').textContent = "0 / 0";
+      document.getElementById('queueCount').textContent = 0;
+      const q = document.getElementById('queueList');
+      if (q) q.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">当前筛选条件下没有词汇</div>`;
+      return;
+    }
+    if (playerIndex >= activeFilteredList.length) playerIndex = 0;
+    if (playerIndex < 0) playerIndex = activeFilteredList.length - 1;
+
+    const cur = activeFilteredList[playerIndex];
+    document.getElementById('playerLevel').textContent = cur.level || "A1";
+    document.getElementById('playerLevel').className = `level-badge level-${cur.level || 'A1'}`;
+    document.getElementById('playerCategory').textContent = cur.category || "常用语";
+    document.getElementById('playerType').textContent = cur.type || "情境";
+    document.getElementById('playerUzbekWord').textContent = cur.uzbek;
+    document.getElementById('playerChineseText').textContent = cur.chinese;
+    document.getElementById('playerExUz').textContent = cur.exUz || "-";
+    document.getElementById('playerExCn').textContent = cur.exCn || "";
+    
+    const pct = ((playerIndex + 1) / activeFilteredList.length) * 100;
+    document.getElementById('progressBarFill').style.width = `${pct}%`;
+    document.getElementById('playerCurrentPos').textContent = `第 ${playerIndex + 1} / ${activeFilteredList.length} 词`;
+    document.getElementById('playerRepeatBadge').textContent = `第 ${currentRepeatRound} / ${playerRepeat} 遍`;
+    document.getElementById('queueCount').textContent = activeFilteredList.length;
+
+    renderQueueList();
+  }
+
+  function renderQueueList() {
+    const listEl = document.getElementById('queueList');
+    if (!listEl) return;
+    
+    listEl.innerHTML = activeFilteredList.map((item, idx) => {
+      const isCur = (idx === playerIndex);
+      return `
+        <div class="queue-item ${isCur ? 'active' : ''}" onclick="jumpToPlayerIndex(${idx})" id="queueItem_${idx}">
+          <div class="queue-item-uz">
+            <span style="font-size: 11px; color: #94a3b8; width: 34px;">#${item.no || (idx + 1)}</span>
+            <span>${item.uzbek}</span>
+          </div>
+          <div class="queue-item-cn">${item.chinese}</div>
+        </div>
+      `;
+    }).join('');
+
+    const activeEl = document.getElementById(`queueItem_${playerIndex}`);
+    if (activeEl && listEl && (listEl.contains ? listEl.contains(activeEl) : true)) {
+      listEl.scrollTop = activeEl.offsetTop - listEl.offsetTop - 50;
+    }
+  }
+
+  function setPlayerStatus(text, isActive = false) {
+    const textEl = document.getElementById('playerStatusText');
+    const indicator = document.getElementById('playerStageIndicator');
+    if (textEl) textEl.textContent = text;
+    if (indicator) {
+      if (isActive) indicator.classList.add('active');
+      else indicator.classList.remove('active');
+    }
+  }
+
+  function togglePlayer() {
+    if (activeFilteredList.length === 0) return;
+    if (playerPlaying) {
+      pausePlayer();
+    } else {
+      startPlayer();
+    }
+  }
+
+  let activeUtterance = null;
+  let chineseSafetyTimer = null;
+
+  function startPlayer() {
+    playerPlaying = true;
+    document.getElementById('playerPlayIcon').textContent = '⏸️';
+    document.getElementById('playerPlayBtn').title = '暂停播放 (Space)';
+    setPlayerStatus('连播进行中...', true);
+    currentRepeatRound = 1;
+
+    // 关键：在用户交互触发 (User Gesture) 的瞬间激活并预热 SpeechSynthesis (解决 Safari / Chrome 的静音拦截)
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.resume();
+      loadChineseVoices();
+      try {
+        const unlockUtter = new SpeechSynthesisUtterance(' ');
+        unlockUtter.volume = 0;
+        window.speechSynthesis.speak(unlockUtter);
+      } catch (e) {}
+    }
+
+    playCurrentWordSequence();
+  }
+
+  function pausePlayer() {
+    playerPlaying = false;
+    document.getElementById('playerPlayIcon').textContent = '▶️';
+    document.getElementById('playerPlayBtn').title = '开始连播 (Space)';
+    setPlayerStatus('已暂停', false);
+    stopCurrentAudioAndSpeech();
+  }
+
+  function nextPlayerWord() {
+    if (activeFilteredList.length === 0) return;
+    stopCurrentAudioAndSpeech();
+    playerIndex = (playerIndex + 1) % activeFilteredList.length;
+    currentRepeatRound = 1;
+    renderPlayerView();
+    if (playerPlaying) playCurrentWordSequence();
+  }
+
+  function prevPlayerWord() {
+    if (activeFilteredList.length === 0) return;
+    stopCurrentAudioAndSpeech();
+    playerIndex = (playerIndex - 1 + activeFilteredList.length) % activeFilteredList.length;
+    currentRepeatRound = 1;
+    renderPlayerView();
+    if (playerPlaying) playCurrentWordSequence();
+  }
+
+  function jumpToPlayerIndex(idx) {
+    if (idx < 0 || idx >= activeFilteredList.length) return;
+    stopCurrentAudioAndSpeech();
+    playerIndex = idx;
+    currentRepeatRound = 1;
+    renderPlayerView();
+    if (playerPlaying) playCurrentWordSequence();
+  }
+
+  function seekPlayer(e) {
+    if (activeFilteredList.length === 0) return;
+    const bar = document.getElementById('progressBarContainer');
+    const rect = bar.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, clickX / rect.width));
+    const targetIdx = Math.floor(pct * activeFilteredList.length);
+    jumpToPlayerIndex(targetIdx);
+  }
+
+  function stopCurrentAudioAndSpeech() {
+    if (playerAudioObj) {
+      playerAudioObj.pause();
+      playerAudioObj = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    activeUtterance = null;
+    if (chineseSafetyTimer) {
+      clearTimeout(chineseSafetyTimer);
+      chineseSafetyTimer = null;
+    }
+    if (playerTimeoutTimer) {
+      clearTimeout(playerTimeoutTimer);
+      playerTimeoutTimer = null;
+    }
+    const uzWrap = document.getElementById('playerUzbekWrap');
+    const cnEl = document.getElementById('playerChineseText');
+    if (uzWrap) uzWrap.classList.remove('speaking');
+    if (cnEl) cnEl.classList.remove('speaking');
+  }
+
+  function playCurrentWordSequence() {
+    if (!playerPlaying || activeFilteredList.length === 0) return;
+    const cur = activeFilteredList[playerIndex];
+    if (!cur) return;
+
+    renderPlayerView();
+
+    if (playerOrder === 'uz-cn') {
+      playUzbekPart(cur, () => {
+        if (!playerPlaying) return;
+        playerTimeoutTimer = setTimeout(() => {
+          if (!playerPlaying) return;
+          playChinesePart(cur, () => {
+            handleRepeatOrNext();
+          });
+        }, 300);
+      });
+    } else if (playerOrder === 'uz-only') {
+      playUzbekPart(cur, () => {
+        handleRepeatOrNext();
+      });
+    } else if (playerOrder === 'cn-uz') {
+      playChinesePart(cur, () => {
+        if (!playerPlaying) return;
+        playerTimeoutTimer = setTimeout(() => {
+          if (!playerPlaying) return;
+          playUzbekPart(cur, () => {
+            handleRepeatOrNext();
+          });
+        }, 300);
+      });
+    }
+  }
+
+  function playUzbekPart(cur, onComplete) {
+    if (!playerPlaying) return;
+    const uzWrap = document.getElementById('playerUzbekWrap');
+    if (uzWrap) uzWrap.classList.add('speaking');
+    setPlayerStatus(`🔊 乌语朗读中 (第 ${currentRepeatRound}/${playerRepeat} 遍)...`, true);
+
+    const onFinish = () => {
+      if (uzWrap) uzWrap.classList.remove('speaking');
+      if (playerAudioObj) playerAudioObj = null;
+      if (typeof onComplete === 'function') onComplete();
+    };
+
+    if (cur.no) {
+      const audio = new Audio(`audio/${cur.no}.mp3`);
+      playerAudioObj = audio;
+      audio.playbackRate = playerSpeed;
+      audio.onended = onFinish;
+      audio.onerror = () => {
+        console.warn(`audio/${cur.no}.mp3 播放失败，备用合成朗读`);
+        speakUzFallback(cur.uzbek, onFinish);
+      };
+      const p = audio.play();
+      if (p !== undefined) {
+        p.catch(err => {
+          console.warn("Audio play catch:", err);
+          speakUzFallback(cur.uzbek, onFinish);
+        });
+      }
+    } else {
+      speakUzFallback(cur.uzbek, onFinish);
+    }
+  }
+
+  function speakUzFallback(text, onFinish) {
+    if (!playerPlaying) return;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'uz-UZ';
+      utter.rate = playerSpeed;
+      
+      const voices = window.speechSynthesis.getVoices() || [];
+      const uzVoice = voices.find(v => 
+        (v.lang && (v.lang.toLowerCase() === 'uz-uz' || v.lang.toLowerCase().startsWith('uz'))) ||
+        (v.name && (v.name.includes('Uzbek') || v.name.includes('Madina') || v.name.includes('Sardor')))
+      );
+      if (uzVoice) utter.voice = uzVoice;
+      
+      utter.onend = onFinish;
+      utter.onerror = onFinish;
+      window.speechSynthesis.speak(utter);
+    } else {
+      setTimeout(onFinish, 1200);
+    }
+  }
+
+  function playChinesePart(cur, onComplete) {
+    if (!playerPlaying) return;
+    const cnEl = document.getElementById('playerChineseText');
+    if (cnEl) cnEl.classList.add('speaking');
+    setPlayerStatus(`🗣️ 中文释义朗读中...`, true);
+
+    let finished = false;
+    const onFinish = () => {
+      if (finished) return;
+      finished = true;
+      if (chineseSafetyTimer) {
+        clearTimeout(chineseSafetyTimer);
+        chineseSafetyTimer = null;
+      }
+      activeUtterance = null;
+      if (cnEl) cnEl.classList.remove('speaking');
+      if (typeof onComplete === 'function') onComplete();
+    };
+
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
+      const textToSpeak = getCleanChineseText(cur.chinese) || cur.chinese || ' ';
+      const utter = new SpeechSynthesisUtterance(textToSpeak);
+      activeUtterance = utter; // 挂载到全局变量，防止垃圾回收导致静音
+
+      const zhVoice = getBestChineseVoice();
+      if (zhVoice) {
+        utter.voice = zhVoice;
+        utter.lang = zhVoice.lang || 'zh-CN';
+      } else {
+        utter.lang = 'zh-CN';
+      }
+
+      utter.rate = Math.max(0.75, Math.min(1.4, playerSpeed));
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+
+      utter.onstart = () => {
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      };
+      utter.onend = onFinish;
+      utter.onerror = (e) => {
+        console.warn("Chinese SpeechSynthesis error:", e);
+        onFinish();
+      };
+
+      // 安全看门狗超时机制：无论浏览器发声是否响应，计算合理朗读时间后必定平滑推进，绝不卡顿
+      const estimatedDuration = Math.max(1600, (textToSpeak.length * 360) / playerSpeed + 800);
+      chineseSafetyTimer = setTimeout(onFinish, estimatedDuration);
+
+      window.speechSynthesis.speak(utter);
+    } else {
+      setTimeout(onFinish, 1200);
+    }
+  }
+
+  function handleRepeatOrNext() {
+    if (!playerPlaying) return;
+
+    if (currentRepeatRound < playerRepeat) {
+      currentRepeatRound++;
+      document.getElementById('playerRepeatBadge').textContent = `第 ${currentRepeatRound} / ${playerRepeat} 遍`;
+      setPlayerStatus(`⏳ 稍歇，准备第 ${currentRepeatRound} 遍...`, true);
+      playerTimeoutTimer = setTimeout(() => {
+        if (!playerPlaying) return;
+        playCurrentWordSequence();
+      }, 600);
+    } else {
+      currentRepeatRound = 1;
+      setPlayerStatus(`⏳ 词间停顿 (${playerInterval/1000}秒)...`, true);
+      playerTimeoutTimer = setTimeout(() => {
+        if (!playerPlaying) return;
+        playerIndex = (playerIndex + 1) % activeFilteredList.length;
+        renderPlayerView();
+        playCurrentWordSequence();
+      }, playerInterval);
+    }
+  }
+
+  function setPlayerSpeed(speed, btn) {
+    playerSpeed = speed;
+    if (playerAudioObj) playerAudioObj.playbackRate = speed;
+    updatePillGroup(btn);
+  }
+
+  function setPlayerRepeat(repeat, btn) {
+    playerRepeat = repeat;
+    document.getElementById('playerRepeatBadge').textContent = `第 ${currentRepeatRound} / ${playerRepeat} 遍`;
+    updatePillGroup(btn);
+  }
+
+  function setPlayerOrder(order, btn) {
+    playerOrder = order;
+    updatePillGroup(btn);
+  }
+
+  function setPlayerInterval(ms, btn) {
+    playerInterval = ms;
+    updatePillGroup(btn);
+  }
+
+  function updatePillGroup(clickedBtn) {
+    if (!clickedBtn) return;
+    const parent = clickedBtn.parentElement;
+    if (!parent) return;
+    Array.from(parent.children).forEach(child => child.classList.remove('active'));
+    clickedBtn.classList.add('active');
   }
 
   function updateStatusBar() {
@@ -707,6 +1317,7 @@
     updateStatusBar();
     renderTable();
     renderCard();
+    renderPlayerView();
   }
 
   function speakText(text) {
@@ -955,6 +1566,20 @@
       } else if (e.code === 'Enter') {
         e.preventDefault();
         speakCardWord();
+      }
+    }
+
+    const playerContainer = document.getElementById('playerViewContainer');
+    if (playerContainer && playerContainer.style.display === 'flex') {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayer();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextPlayerWord();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevPlayerWord();
       }
     }
   });
