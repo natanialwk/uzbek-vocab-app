@@ -86,8 +86,9 @@
     tr:hover td { background-color: #fbfdfc; }
 
     .uzbek-word { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-    .speak-btn { background: #f0fdf4; border: 1px solid #bbf7d0; cursor: pointer; color: var(--primary-dark); font-size: 14px; padding: 3px 6px; border-radius: 6px; transition: all 0.2s; }
-    .speak-btn:hover { background: #dcfce7; transform: scale(1.05); }
+    .speak-btn { background: #f0fdf4; border: 1px solid #bbf7d0; cursor: pointer; color: var(--primary-dark); font-size: 14px; padding: 3px 6px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+    .speak-btn:hover { background: #dcfce7; transform: scale(1.08); }
+    .speak-btn.playing { background: #10b981; color: #ffffff; border-color: #059669; transform: scale(1.12); box-shadow: 0 0 8px rgba(16, 185, 129, 0.45); }
     .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; display: inline-block; }
     .example-uz { font-size: 13px; color: #334155; margin-bottom: 3px; font-weight: 500; }
     .example-cn { font-size: 12px; color: #94a3b8; }
@@ -155,9 +156,9 @@
 
 <div class="container" id="appRoot">
   <header>
-    <div class="header-badge">🇺🇿 Uzbek Language Mastery · 1200 核心词库大圆满</div>
+    <div class="header-badge">🇺🇿 Uzbek Language Mastery · 1200 核心词库 · 原汁原味母语真人发音（Madina）</div>
     <h1>乌兹别克语核心 1200 词学习库</h1>
-    <p>涵盖生活日常、商业外贸、旅游出行、医疗应急等 43 大全场景主题 · 对话成对逻辑编排 · 抽认卡刷词与智能去重</p>
+    <p>涵盖 43 大全场景主题 · 对话问答成对逻辑编排 · 支持真实母语语音朗读、抽认卡 3D 记忆与 Excel 智能同步</p>
   </header>
 
   <!-- 模式切换 -->
@@ -256,7 +257,7 @@
               <span class="badge" id="cardTypeFront" style="background:#e0f2fe; color:#0369a1;">场景</span>
             </div>
             <div class="card-top-actions">
-              <button class="speak-btn" onclick="event.stopPropagation(); speakCardWord();" title="朗读发音">🔊 读音</button>
+              <button class="speak-btn" onclick="event.stopPropagation(); speakCardWord(event);" title="播放乌兹别克母语发音 (Madina)">🔊 读音</button>
               <button class="edit-btn" onclick="event.stopPropagation(); editCurrentCard();" title="快速修改当前卡片">✏️ 修改</button>
             </div>
           </div>
@@ -487,7 +488,7 @@
         <td>
           <div class="uzbek-word">
             <span>${item.uzbek}</span>
-            <button class="speak-btn" onclick="speakByIndex(${globalFilteredIdx})" title="发音">🔊</button>
+            <button class="speak-btn" onclick="speakByIndex(${globalFilteredIdx}, event)" title="播放乌兹别克母语发音 (Madina)">🔊</button>
           </div>
         </td>
         <td><strong>${item.chinese}</strong></td>
@@ -603,14 +604,57 @@
     renderCard();
   }
 
-  function speakByIndex(idx) {
-    const item = activeFilteredList[idx];
-    if (item && item.uzbek) speakText(item.uzbek);
+  let activeAudio = null;
+  function playWordAudio(item, btnEl) {
+    if (!item) return;
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    }
+
+    if (btnEl) {
+      btnEl.classList.add('playing');
+    }
+
+    if (item.no) {
+      const audio = new Audio(`audio/${item.no}.mp3`);
+      activeAudio = audio;
+      
+      const removePlayingClass = () => {
+        if (btnEl) btnEl.classList.remove('playing');
+      };
+
+      audio.onended = removePlayingClass;
+      audio.onerror = () => {
+        removePlayingClass();
+        console.warn(`audio/${item.no}.mp3 播放失败或未找到，自动降级为浏览器语音合成`);
+        speakTextFallback(item.uzbek);
+      };
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          removePlayingClass();
+          console.warn(`audio/${item.no}.mp3 自动播放受阻，降级为语音合成:`, err);
+          speakTextFallback(item.uzbek);
+        });
+      }
+    } else {
+      if (btnEl) setTimeout(() => btnEl.classList.remove('playing'), 800);
+      speakTextFallback(item.uzbek);
+    }
   }
 
-  function speakCardWord() {
+  function speakByIndex(idx, event) {
+    const item = activeFilteredList[idx];
+    const btn = event ? (event.currentTarget || event.target) : null;
+    if (item) playWordAudio(item, btn);
+  }
+
+  function speakCardWord(event) {
     const cur = activeFilteredList[currentCardIndex];
-    if (cur && cur.uzbek) speakText(cur.uzbek);
+    const btn = event ? (event.currentTarget || event.target) : null;
+    if (cur) playWordAudio(cur, btn);
   }
 
   function editCurrentCard() {
@@ -666,10 +710,24 @@
   }
 
   function speakText(text) {
+    speakTextFallback(text);
+  }
+
+  function speakTextFallback(text) {
+    if (!text) return;
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'uz-UZ';
+
+      // 优先匹配浏览器内可用的乌兹别克真实语音包（如 Edge 浏览器自带的 Madina/Sardor）
+      const voices = window.speechSynthesis.getVoices() || [];
+      const uzVoice = voices.find(v => 
+        (v.lang && (v.lang.toLowerCase() === 'uz-uz' || v.lang.toLowerCase().startsWith('uz'))) ||
+        (v.name && (v.name.includes('Uzbek') || v.name.includes('Madina') || v.name.includes('Sardor')))
+      );
+      if (uzVoice) utter.voice = uzVoice;
+
       window.speechSynthesis.speak(utter);
     }
   }
