@@ -32,7 +32,7 @@
     }
 
     /* ================================================= */
-    /* 🌟 全局置顶统一现代导航栏 (Global Navbar) */
+    /* 🌟 全局置顶统一导航栏 (Global Navbar) */
     /* ================================================= */
     .app-header {
       position: sticky;
@@ -45,7 +45,7 @@
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid #e2e8f0;
       box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
     .header-inner {
       max-width: 1200px;
@@ -129,13 +129,13 @@
       color: #ffffff;
     }
 
-    @media (max-width: 760px) {
-      .header-inner { padding: 8px 12px; flex-direction: column; align-items: stretch; gap: 8px; }
+    @media (max-width: 768px) {
+      .header-inner { padding: 8px 10px; flex-direction: column; align-items: stretch; gap: 8px; }
       .brand-logo { justify-content: center; }
       .brand-text { font-size: 15px; }
       .brand-sub { font-size: 11px; }
-      .nav-menu { justify-content: center; gap: 4px; width: 100%; flex-wrap: wrap; }
-      .nav-tab { flex: 1 1 45%; justify-content: center; padding: 7px 6px; font-size: 12px; }
+      .nav-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; }
+      .nav-tab { justify-content: center; padding: 7px 2px; font-size: 12px; }
       .tab-badge { display: none; }
     }
 
@@ -450,13 +450,13 @@
           <span>🏠</span> <span>首页</span>
         </a>
         <a href="vocab.html" class="nav-tab">
-          <span>📚</span> <span>核心词汇</span> <span class="tab-badge">1200</span>
+          <span>📚</span> <span>核心词汇</span> <span class="tab-badge">1304</span>
         </a>
         <a href="dialogues.html" class="nav-tab">
           <span>💬</span> <span>实用对话</span> <span class="tab-badge">10</span>
         </a>
         <a href="stories.html" class="nav-tab">
-          <span>📖</span> <span>文化读本</span> <span class="tab-badge">10</span>
+          <span>📖</span> <span>伴读故事</span> <span class="tab-badge">10</span>
         </a>
       </nav>
     </div>
@@ -472,7 +472,7 @@
       <!-- 快捷入口按钮 -->
       <div class="hero-cta-group">
         <a href="vocab.html" class="cta-btn cta-vocab">
-          <span>📚 核心词汇 (1200 词)</span>
+          <span>📚 核心词汇 (1304 词)</span>
           <span>→</span>
         </a>
         <a href="dialogues.html" class="cta-btn cta-dialogues">
@@ -489,7 +489,7 @@
       <div class="stats-row">
         <div class="stat-pill">
           <span>📚 核心词汇</span>
-          <span class="stat-num">1,200 条</span>
+          <span class="stat-num">1304 条</span>
         </div>
         <div class="stat-pill">
           <span>🎙️ 双语真声</span>
@@ -517,7 +517,7 @@
             <span class="module-tag tag-vocab">词汇三位一体</span>
           </div>
           <div class="module-title">核心词汇综合馆</div>
-          <div class="module-desc">涵盖 CEFR A1-B1 官方大纲 1,200 词。纯净简明中文释义与真实语义分类，支持自由跳转任意序号（如 #100 词）、3D 抽认卡滑块与磨耳朵播放起点设定。</div>
+          <div class="module-desc">涵盖官方大纲与文化读本实战对话精选的 1304 词。纯净简明中文释义与真实语义分类，支持自由跳转任意序号（如 #100 词）、3D 抽认卡滑块与磨耳朵播放起点设定。</div>
           <ul class="feature-list">
             <li class="feature-item">
               <span class="feature-check check-vocab">✓</span>
