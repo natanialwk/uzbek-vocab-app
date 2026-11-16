@@ -568,6 +568,36 @@
       box-shadow: 0 0 0 2px #facc15;
     }
 
+    .sentence-audio-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #059669;
+      font-size: 9.5px;
+      margin-left: 4px;
+      margin-right: 4px;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .sentence-audio-btn:hover {
+      background: #10b981;
+      color: white;
+      transform: scale(1.1);
+    }
+    .sentence-audio-btn.playing {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+
     .story-trans-box {
       font-size: 14.5px;
       color: #475569;
@@ -771,6 +801,23 @@
       display: flex;
       gap: 10px;
     }
+    .sheet-sent-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .sheet-sent-btn:hover { background: #10b981; color: white; border-color: #10b981; }
     .sheet-bookmark-btn {
       flex: 1;
       padding: 10px;
@@ -941,6 +988,10 @@
       </div>
       <div class="sheet-defs" id="sheetDefsList">释义加载中...</div>
       <div class="sheet-actions">
+        <button class="sheet-sent-btn" id="sheetSentPlayBtn" onclick="playSentenceOfCurrentWord()">
+          <span>▶</span>
+          <span>朗读本句录音</span>
+        </button>
         <button class="sheet-bookmark-btn" id="sheetBookmarkBtn" onclick="toggleBookmarkWord()">
           <span id="bookmarkIcon">🔖</span>
           <span id="bookmarkText">收藏生词到核心词库</span>
@@ -1046,6 +1097,17 @@
         const wrap = document.createElement('span');
         wrap.className = 'story-sentence-wrap';
 
+        const playBtn = document.createElement('button');
+        playBtn.className = 'sentence-audio-btn';
+        playBtn.id = `sentPlayBtn_${sIdx}`;
+        playBtn.title = '朗读此句录音';
+        playBtn.textContent = '▶';
+        playBtn.onclick = (e) => {
+          e.stopPropagation();
+          playSpecificSentence(sIdx);
+        };
+        wrap.appendChild(playBtn);
+
         const span = document.createElement('span');
         span.className = 'story-sentence';
         span.id = `sentSpan_${sIdx}`;
@@ -1071,12 +1133,7 @@
       const totalSent = s.sentences.length;
       const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
       if (badge) badge.textContent = `1 / ${totalSent}`;
-      const repeatBtn = document.getElementById('btnStoryRepeatMode');
-      if (repeatBtn) {
-        repeatBtn.textContent = (storyRepeatMode === 'single') ? '🔂' : '🔁';
-        if (storyRepeatMode === 'single') repeatBtn.classList.add('active');
-        else repeatBtn.classList.remove('active');
-      }
+      updateStoryRepeatUI(false);
       const mainBtn = document.getElementById('playerMainBtn');
       if (mainBtn) mainBtn.textContent = '▶';
     }
@@ -1189,14 +1246,31 @@
       return [];
     }
 
+    function playSentenceOfCurrentWord() {
+      if (!activeInspectWordData || activeInspectWordData.sIdx === undefined) return;
+      playSpecificSentence(activeInspectWordData.sIdx);
+    }
+
     // 音频播放控制
     function highlightSentence(idx) {
       document.querySelectorAll('.story-sentence').forEach(el => el.classList.remove('playing'));
+      document.querySelectorAll('.sentence-audio-btn').forEach(btn => {
+        btn.classList.remove('playing');
+        btn.textContent = '▶';
+      });
+
       const span = document.getElementById(`sentSpan_${idx}`);
       if (span) {
         span.classList.add('playing');
         span.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+
+      const activeBtn = document.getElementById(`sentPlayBtn_${idx}`);
+      if (activeBtn) {
+        activeBtn.classList.add('playing');
+        activeBtn.textContent = storyPlaying ? '⏸' : '▶';
+      }
+
       const total = STORIES_DATA[currentStoryIdx].sentences.length;
       const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
       if (badge) badge.textContent = `${idx + 1} / ${total}`;
@@ -1207,7 +1281,7 @@
       playCurrentSentence();
     }
 
-    let storyRepeatMode = 'all'; // 'all' (全文连续), 'single' (单句循环)
+    let storyRepeatMode = 'all'; // 'all' (整篇循环), 'single' (单句循环), 'once' (单次播放)
 
     function updateStoryMediaSession(s, sent, index) {
       if ('mediaSession' in navigator) {
@@ -1235,20 +1309,34 @@
     }
 
     function toggleStoryRepeatMode() {
-      storyRepeatMode = (storyRepeatMode === 'all') ? 'single' : 'all';
+      if (storyRepeatMode === 'all') {
+        storyRepeatMode = 'single';
+      } else if (storyRepeatMode === 'single') {
+        storyRepeatMode = 'once';
+      } else {
+        storyRepeatMode = 'all';
+      }
+      updateStoryRepeatUI(true);
+    }
+
+    function updateStoryRepeatUI(showNotice = false) {
       const btn = document.getElementById('btnStoryRepeatMode');
-      if (btn) {
-        if (storyRepeatMode === 'single') {
-          btn.textContent = '🔂';
-          btn.classList.add('active');
-          btn.title = "当前模式：单句循环（点击切换全篇连播）";
-          showToast('🔂 已开启【单句循环】模式');
-        } else {
-          btn.textContent = '🔁';
-          btn.classList.remove('active');
-          btn.title = "当前模式：全篇连播（点击切换单句循环）";
-          showToast('🔁 已开启【全篇连播】模式');
-        }
+      if (!btn) return;
+      if (storyRepeatMode === 'all') {
+        btn.textContent = '🔁';
+        btn.classList.add('active');
+        btn.title = "当前模式：整篇循环（全篇播完自动从第1句重新循环）· 点击切换单句循环";
+        if (showNotice) showToast('🔁 已开启【整篇循环】：全篇播完自动从头重播');
+      } else if (storyRepeatMode === 'single') {
+        btn.textContent = '🔂';
+        btn.classList.add('active');
+        btn.title = "当前模式：单句循环（反复重听当前句子）· 点击切换单次播放";
+        if (showNotice) showToast('🔂 已开启【单句循环】：反复重听当前句子');
+      } else {
+        btn.textContent = '➡️';
+        btn.classList.remove('active');
+        btn.title = "当前模式：单次播放（全篇播完即止）· 点击切换整篇循环";
+        if (showNotice) showToast('➡️ 已开启【单次播放】：全篇播完自动停止');
       }
     }
 
@@ -1262,15 +1350,15 @@
       storyPlaying = false;
       const mainBtn = document.getElementById('playerMainBtn');
       if (mainBtn) mainBtn.textContent = '▶';
+      document.querySelectorAll('.sentence-audio-btn.playing').forEach(btn => {
+        btn.textContent = '▶';
+      });
     }
 
     function togglePlayStory() {
       if (storyPlaying) {
         pauseStoryPlay();
       } else {
-        storyPlaying = true;
-        const mainBtn = document.getElementById('playerMainBtn');
-        if (mainBtn) mainBtn.textContent = '⏸';
         playCurrentSentence();
       }
     }
@@ -1280,11 +1368,29 @@
       if (!s || !s.sentences[currentSentenceIdx]) return;
 
       const sent = s.sentences[currentSentenceIdx];
+      storyPlaying = true;
       highlightSentence(currentSentenceIdx);
       updateStoryMediaSession(s, sent, currentSentenceIdx);
 
+      // 后台预加载下一句音频，杜绝手机端网络卡顿
+      if (currentSentenceIdx < s.sentences.length - 1) {
+        const pre = new Audio();
+        pre.preload = 'auto';
+        pre.src = s.sentences[currentSentenceIdx + 1].audio;
+      }
+
+      storyAudio.pause();
       storyAudio.src = sent.audio;
       storyAudio.playbackRate = storySpeed || 1.0;
+
+      storyAudio.onerror = (e) => {
+        console.warn("Story audio load error:", sent.audio, e);
+        if (storyPlaying) {
+          setTimeout(() => {
+            if (storyPlaying) advanceStorySentence();
+          }, 1200);
+        }
+      };
 
       storyAudio.onended = () => {
         if (!storyPlaying) return;
@@ -1293,8 +1399,23 @@
           // 单句循环
           setTimeout(() => {
             if (storyPlaying) playCurrentSentence();
-          }, 400);
+          }, 500);
+        } else if (storyRepeatMode === 'all') {
+          // 整篇循环：播到最后一句后，延迟 1 秒后自动从第 1 句重新循环！
+          if (currentSentenceIdx < s.sentences.length - 1) {
+            currentSentenceIdx++;
+            playCurrentSentence();
+          } else {
+            setTimeout(() => {
+              if (storyPlaying) {
+                currentSentenceIdx = 0;
+                playCurrentSentence();
+                showToast('🔁 整篇循环：已从第 1 句重新开始');
+              }
+            }, 1000);
+          }
         } else {
+          // 单次顺序播放 (once)
           if (currentSentenceIdx < s.sentences.length - 1) {
             currentSentenceIdx++;
             playCurrentSentence();
@@ -1302,16 +1423,33 @@
             pauseStoryPlay();
             const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
             if (badge) badge.textContent = '完 ↺';
+            showToast('✅ 故事已播完');
           }
         }
       };
 
-      storyAudio.play().catch(err => {
-        console.warn("Story audio play catch:", err);
-      });
-      storyPlaying = true;
+      const playPromise = storyAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn("Story audio play catch:", err);
+        });
+      }
       const mainBtn = document.getElementById('playerMainBtn');
       if (mainBtn) mainBtn.textContent = '⏸';
+    }
+
+    function advanceStorySentence() {
+      const s = STORIES_DATA[currentStoryIdx];
+      if (!s) return;
+      if (currentSentenceIdx < s.sentences.length - 1) {
+        currentSentenceIdx++;
+        playCurrentSentence();
+      } else if (storyRepeatMode === 'all') {
+        currentSentenceIdx = 0;
+        playCurrentSentence();
+      } else {
+        pauseStoryPlay();
+      }
     }
 
     function prevSentence() {

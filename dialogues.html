@@ -1093,12 +1093,7 @@
       const totalLines = d.sentences.length;
       const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
       if (badge) badge.textContent = `1 / ${totalLines}`;
-      const repeatBtn = document.getElementById('btnRepeatMode');
-      if (repeatBtn) {
-        repeatBtn.textContent = (repeatMode === 'single') ? '🔂' : '🔁';
-        if (repeatMode === 'single') repeatBtn.classList.add('active');
-        else repeatBtn.classList.remove('active');
-      }
+      updateDialogueRepeatUI(false);
       const playBtn = document.getElementById('playerMainBtn');
       if (playBtn) playBtn.textContent = '▶';
     }
@@ -1259,20 +1254,34 @@
     }
 
     function toggleRepeatMode() {
-      repeatMode = (repeatMode === 'all') ? 'single' : 'all';
+      if (repeatMode === 'all') {
+        repeatMode = 'single';
+      } else if (repeatMode === 'single') {
+        repeatMode = 'once';
+      } else {
+        repeatMode = 'all';
+      }
+      updateDialogueRepeatUI(true);
+    }
+
+    function updateDialogueRepeatUI(showNotice = false) {
       const btn = document.getElementById('btnRepeatMode');
-      if (btn) {
-        if (repeatMode === 'single') {
-          btn.textContent = '🔂';
-          btn.classList.add('active');
-          btn.title = "当前模式：单句循环（点击切换全文连播）";
-          showToast('🔂 已开启【单句循环】模式');
-        } else {
-          btn.textContent = '🔁';
-          btn.classList.remove('active');
-          btn.title = "当前模式：全文连播（点击切换单句循环）";
-          showToast('🔁 已开启【全文连播】模式');
-        }
+      if (!btn) return;
+      if (repeatMode === 'all') {
+        btn.textContent = '🔁';
+        btn.classList.add('active');
+        btn.title = "当前模式：整篇循环（播完从头重播）· 点击切换单句循环";
+        if (showNotice) showToast('🔁 已开启【整篇循环】：全篇播完自动从头重播');
+      } else if (repeatMode === 'single') {
+        btn.textContent = '🔂';
+        btn.classList.add('active');
+        btn.title = "当前模式：单句循环（反复重听当前句子）· 点击切换单次播放";
+        if (showNotice) showToast('🔂 已开启【单句循环】：反复重听当前句子');
+      } else {
+        btn.textContent = '➡️';
+        btn.classList.remove('active');
+        btn.title = "当前模式：单次播放（播完即止）· 点击切换整篇循环";
+        if (showNotice) showToast('➡️ 已开启【单次播放】：全篇播完自动停止');
       }
     }
 
@@ -1311,8 +1320,25 @@
       highlightLine(currentLineIdx);
       updateMediaSessionMetadata(d, sent, currentLineIdx);
 
+      // 后台预加载下一句音频，杜绝手机端网络卡顿
+      if (currentLineIdx < d.sentences.length - 1) {
+        const pre = new Audio();
+        pre.preload = 'auto';
+        pre.src = d.sentences[currentLineIdx + 1].audio;
+      }
+
+      dialogueAudio.pause();
       dialogueAudio.src = sent.audio;
       dialogueAudio.playbackRate = activeSpeed || 1.0;
+
+      dialogueAudio.onerror = (e) => {
+        console.warn("Dialogue audio load error:", sent.audio, e);
+        if (isPlaying) {
+          setTimeout(() => {
+            if (isPlaying) advanceDialogueLine();
+          }, 1200);
+        }
+      };
 
       dialogueAudio.onended = () => {
         if (!isPlaying) return;
@@ -1322,25 +1348,57 @@
           setTimeout(() => {
             if (isPlaying) playCurrentLine();
           }, 500);
-        } else {
-          // 全文顺序连播
+        } else if (repeatMode === 'all') {
+          // 整篇循环：播到最后一句后，延迟 1 秒后自动从第 1 句重新循环！
           if (currentLineIdx < d.sentences.length - 1) {
             currentLineIdx++;
             playCurrentLine();
           } else {
-            pauseDialogue();
+            setTimeout(() => {
+              if (isPlaying) {
+                currentLineIdx = 0;
+                playCurrentLine();
+                showToast('🔁 整篇循环：已从第 1 句重新开始');
+              }
+            }, 1000);
+          }
+        } else {
+          // 单次顺序播放 (once)
+          if (currentLineIdx < d.sentences.length - 1) {
+            currentLineIdx++;
+            playCurrentLine();
+          } else {
+            pauseAudio();
             const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
             if (badge) badge.textContent = '完 ↺';
+            showToast('✅ 对话已播完');
           }
         }
       };
 
-      dialogueAudio.play().catch(err => {
-        console.warn("Dialogue audio play catch:", err);
-      });
+      const playPromise = dialogueAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn("Dialogue audio play catch:", err);
+        });
+      }
       isPlaying = true;
       const playBtn = document.getElementById('playerMainBtn');
       if (playBtn) playBtn.textContent = '⏸';
+    }
+
+    function advanceDialogueLine() {
+      const d = DIALOGUES_DATA[currentDIdx];
+      if (!d) return;
+      if (currentLineIdx < d.sentences.length - 1) {
+        currentLineIdx++;
+        playCurrentLine();
+      } else if (repeatMode === 'all') {
+        currentLineIdx = 0;
+        playCurrentLine();
+      } else {
+        pauseAudio();
+      }
     }
 
     function playPrevLine() {
