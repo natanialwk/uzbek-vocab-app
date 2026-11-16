@@ -909,9 +909,11 @@
     <!-- 底部悬浮播放控制条 -->
     <div class="floating-audio-bar">
       <div class="player-controls">
+        <button class="player-btn" onclick="replayCurrentLine()" title="重听本句">⏮️ 重听</button>
         <button class="player-btn" onclick="playPrevLine()" title="上一句">⏮</button>
         <button class="player-btn player-btn-main" id="playerMainBtn" onclick="togglePlayDialogue()" title="播放/暂停">▶</button>
         <button class="player-btn" onclick="playNextLine()" title="下一句">⏭</button>
+        <button class="player-btn" id="btnRepeatMode" onclick="toggleRepeatMode()" title="切换循环模式">🔁 全文</button>
       </div>
       <div class="player-status-text" id="playerStatusText">准备就绪</div>
       <button class="speed-btn" id="speedBtn" onclick="toggleSpeed()">1.0x</button>
@@ -1051,7 +1053,7 @@
     }
 
     function formatWordsHTML(text, lineIdx) {
-      return text.replace(/([a-zA-Z'‘’`ʻ]+)/g, function(match) {
+      return text.replace(/([a-zA-ZÖöĞğŞşÇç'‘’`ʻ]+)/g, function(match) {
         let prefix = '', suffix = '', word = match;
         while (word.startsWith("'") || word.startsWith("‘") || word.startsWith("’") || word.startsWith("`")) {
           prefix += word[0]; word = word.slice(1);
@@ -1223,8 +1225,31 @@
       showToast('⏮️ 正在重听本句');
     }
 
+    
+    function pauseAudio() {
+      if (dialogueAudio) dialogueAudio.pause();
+      isPlaying = false;
+      const playBtn = document.getElementById('playerMainBtn');
+      if (playBtn) playBtn.textContent = '▶';
+    }
+
+    function pauseDialogue() {
+      pauseAudio();
+    }
+
+    function togglePlayDialogue() {
+      if (isPlaying) {
+        pauseAudio();
+      } else {
+        isPlaying = true;
+        const playBtn = document.getElementById('playerMainBtn');
+        if (playBtn) playBtn.textContent = '⏸';
+        playCurrentLine();
+      }
+    }
+
     function playCurrentLine() {
-      const d = DIALOGUES_DATA[currentDialogueIdx];
+      const d = DIALOGUES_DATA[currentDIdx];
       if (!d || !d.sentences[currentLineIdx]) return;
 
       const sent = d.sentences[currentLineIdx];
@@ -1270,7 +1295,7 @@
     }
 
     function playNextLine() {
-      const d = DIALOGUES_DATA[currentDialogueIdx];
+      const d = DIALOGUES_DATA[currentDIdx];
       if (d && currentLineIdx < d.sentences.length - 1) {
         currentLineIdx++;
         playCurrentLine();

@@ -880,9 +880,11 @@
     <!-- 底部悬浮控制台 -->
     <div class="floating-audio-bar">
       <div class="player-controls">
+        <button class="player-btn" onclick="replayStorySentence()" title="重听本句">⏮️ 重听</button>
         <button class="player-btn" onclick="prevSentence()" title="上一句">⏮</button>
         <button class="player-btn player-btn-main" id="playerMainBtn" onclick="togglePlayStory()" title="播放/暂停">▶</button>
         <button class="player-btn" onclick="nextSentence()" title="下一句">⏭</button>
+        <button class="player-btn" id="btnStoryRepeatMode" onclick="toggleStoryRepeatMode()" title="切换循环模式">🔁 全篇</button>
       </div>
       <div class="player-status-text" id="playerStatusText">准备就绪</div>
       <button class="speed-btn" id="speedBtn" onclick="toggleSpeed()">1.0x</button>
@@ -1029,7 +1031,7 @@
     }
 
     function formatSentenceWords(text, sIdx) {
-      return text.replace(/([a-zA-Z'‘’`ʻ]+)/g, function(match) {
+      return text.replace(/([a-zA-ZÖöĞğŞşÇç'‘’`ʻ]+)/g, function(match) {
         let prefix = '', suffix = '', word = match;
         while (word.startsWith("'") || word.startsWith("‘") || word.startsWith("’") || word.startsWith("`")) {
           prefix += word[0]; word = word.slice(1);
@@ -1197,6 +1199,25 @@
     function replayStorySentence() {
       playCurrentSentence();
       showToast('⏮️ 正在重听本句');
+    }
+
+    
+    function pauseStoryPlay() {
+      if (storyAudio) storyAudio.pause();
+      storyPlaying = false;
+      const mainBtn = document.getElementById('playerMainBtn');
+      if (mainBtn) mainBtn.textContent = '▶';
+    }
+
+    function togglePlayStory() {
+      if (storyPlaying) {
+        pauseStoryPlay();
+      } else {
+        storyPlaying = true;
+        const mainBtn = document.getElementById('playerMainBtn');
+        if (mainBtn) mainBtn.textContent = '⏸';
+        playCurrentSentence();
+      }
     }
 
     function playCurrentSentence() {
