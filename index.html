@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>O'zbek Tili · 乌兹别克语沉浸式多维学习平台</title>
+  <title>Özbek Tili · 乌兹别克语学习平台</title>
   <style>
     :root {
       --primary: #059669;
       --primary-dark: #047857;
       --primary-light: #ecfdf5;
       --accent-blue: #0284c7;
+      --accent-orange: #ea580c;
       --accent-purple: #7c3aed;
       --border: #e2e8f0;
       --text: #0f172a;
       --text-muted: #64748b;
       --bg: #f8fafc;
       --card-bg: #ffffff;
-      --radius: 20px;
+      --radius: 18px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -116,42 +117,29 @@
       border-color: #0f172a;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
     }
-    .tab-badge {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 1px 6px;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.08);
-      color: inherit;
-    }
-    .nav-tab.active .tab-badge {
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-    }
 
     @media (max-width: 768px) {
       .header-inner { padding: 8px 10px; flex-direction: column; align-items: stretch; gap: 8px; }
       .brand-logo { justify-content: center; }
       .brand-text { font-size: 15px; }
       .brand-sub { font-size: 11px; }
-      .nav-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; }
-      .nav-tab { justify-content: center; padding: 7px 2px; font-size: 12px; }
-      .tab-badge { display: none; }
+      .nav-menu { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
+      .nav-tab { justify-content: center; padding: 7px 2px; font-size: 11.5px; }
     }
 
     /* 容器 */
     .container {
-      max-width: 1200px;
+      max-width: 1080px;
       margin: 0 auto;
-      padding: 0 20px 80px;
+      padding: 0 20px 60px;
       flex: 1;
       width: 100%;
     }
 
-    /* Hero 区域 */
+    /* 极简 Hero 区域 */
     .hero {
       text-align: center;
-      margin-bottom: 48px;
+      margin: 20px 0 40px;
     }
     .hero-badge {
       display: inline-flex;
@@ -159,19 +147,19 @@
       gap: 6px;
       background: #ecfdf5;
       color: #047857;
-      padding: 6px 18px;
-      border-radius: 24px;
-      font-size: 13.5px;
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 13px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       border: 1px solid #a7f3d0;
     }
     .hero h1 {
-      font-size: 40px;
+      font-size: 38px;
       font-weight: 900;
       color: #0f172a;
-      margin-bottom: 14px;
-      letter-spacing: -1px;
+      margin-bottom: 12px;
+      letter-spacing: -0.8px;
       line-height: 1.25;
     }
     .hero h1 span {
@@ -180,25 +168,25 @@
       -webkit-text-fill-color: transparent;
     }
     .hero p {
-      font-size: 16.5px;
+      font-size: 16px;
       color: var(--text-muted);
-      max-width: 760px;
-      margin: 0 auto 28px;
+      max-width: 600px;
+      margin: 0 auto 30px;
       line-height: 1.6;
     }
 
-    /* 快捷入口按钮组 */
+    /* 简约快捷按键组 (绿、橙、蓝、紫) */
     .hero-cta-group {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 34px;
+      gap: 14px;
       flex-wrap: wrap;
+      margin-bottom: 40px;
     }
     .cta-btn {
-      padding: 11px 22px;
+      padding: 13px 24px;
       border-radius: 14px;
-      font-size: 14.5px;
+      font-size: 15px;
       font-weight: 800;
       text-decoration: none !important;
       display: inline-flex;
@@ -209,16 +197,25 @@
     .cta-vocab {
       background: #059669;
       color: white !important;
-      box-shadow: 0 4px 14px rgba(5,150,105,0.3);
+      box-shadow: 0 4px 14px rgba(5,150,105,0.25);
     }
     .cta-vocab:hover {
       background: #047857;
       transform: translateY(-2px);
     }
+    .cta-quiz {
+      background: #ea580c;
+      color: white !important;
+      box-shadow: 0 4px 14px rgba(234,88,12,0.25);
+    }
+    .cta-quiz:hover {
+      background: #c2410c;
+      transform: translateY(-2px);
+    }
     .cta-dialogues {
       background: #0284c7;
       color: white !important;
-      box-shadow: 0 4px 14px rgba(2,132,199,0.3);
+      box-shadow: 0 4px 14px rgba(2,132,199,0.25);
     }
     .cta-dialogues:hover {
       background: #0369a1;
@@ -227,208 +224,97 @@
     .cta-stories {
       background: #7c3aed;
       color: white !important;
-      box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+      box-shadow: 0 4px 14px rgba(124,58,237,0.25);
     }
     .cta-stories:hover {
       background: #6d28d9;
       transform: translateY(-2px);
     }
 
-    /* 统计指标横幅 */
-    .stats-row {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 50px;
-    }
-    .stat-pill {
-      background: white;
-      border: 1px solid var(--border);
-      padding: 10px 20px;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13.5px;
-      color: #475569;
-    }
-    .stat-num {
-      font-weight: 900;
-      color: #0f172a;
-      font-size: 17px;
-    }
-
-    /* 三大核心学习模块网格 */
+    /* 4 大核心模块精简网格 */
     .modules-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-bottom: 50px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 768px) {
       .modules-grid {
         grid-template-columns: 1fr;
       }
+      .hero h1 { font-size: 28px; }
+      .hero-cta-group { gap: 10px; }
+      .cta-btn { flex: 1 1 45%; justify-content: center; padding: 11px 16px; font-size: 13.5px; }
     }
 
     .module-card {
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px 26px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 24px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.02);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       text-decoration: none !important;
       color: inherit !important;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
-      position: relative;
-      overflow: hidden;
+      gap: 16px;
     }
     .module-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
       border-color: #cbd5e1;
     }
 
-    .card-accent-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-    }
-    .accent-vocab { background: linear-gradient(90deg, #10b981, #06b6d4); }
-    .accent-dialogues { background: linear-gradient(90deg, #0284c7, #3b82f6); }
-    .accent-stories { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
-
-    .card-top {
+    .module-card-left {
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 18px;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
     }
-    .module-icon-box {
-      width: 58px;
-      height: 58px;
-      border-radius: 16px;
+    .module-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 26px;
+      flex-shrink: 0;
     }
     .icon-vocab { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .icon-quiz { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
     .icon-dialogues { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
     .icon-stories { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
 
-    .module-tag {
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
-    .tag-vocab { background: #ecfdf5; color: #047857; }
-    .tag-dialogues { background: #f0f9ff; color: #0369a1; }
-    .tag-stories { background: #faf5ff; color: #6d28d9; }
-
-    .module-title {
-      font-size: 21px;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-    .module-desc {
-      font-size: 13.5px;
-      color: #64748b;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      flex: 1;
-    }
-
-    .feature-list {
-      list-style: none;
-      margin-bottom: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .feature-item {
-      font-size: 13px;
-      color: #334155;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-weight: 600;
-      line-height: 1.45;
-    }
-    .feature-check {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .check-vocab { background: #d1fae5; color: #047857; }
-    .check-dialogues { background: #e0f2fe; color: #0369a1; }
-    .check-stories { background: #f3e8ff; color: #6d28d9; }
-
-    .module-btn {
-      width: 100%;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 14.5px;
-      font-weight: 800;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-    .btn-vocab { background: #059669; color: white !important; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); }
-    .btn-vocab:hover { background: #047857; }
-    .btn-dialogues { background: #0284c7; color: white !important; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
-    .btn-dialogues:hover { background: #0369a1; }
-    .btn-stories { background: #7c3aed; color: white !important; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); }
-    .btn-stories:hover { background: #6d28d9; }
-
-    /* 学习闭环解析卡片 */
-    .method-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-      display: flex;
-      gap: 22px;
-      align-items: center;
-    }
-    .method-icon {
-      font-size: 42px;
-      flex-shrink: 0;
-    }
-    .method-content h3 {
+    .module-info h3 {
       font-size: 17px;
       font-weight: 800;
       color: #0f172a;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
-    .method-content p {
+    .module-info p {
       font-size: 13.5px;
       color: #64748b;
-      line-height: 1.7;
+      line-height: 1.5;
+    }
+
+    .module-arrow {
+      font-size: 18px;
+      color: #94a3b8;
+      font-weight: 800;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .module-card:hover .module-arrow {
+      transform: translateX(4px);
+      color: #0f172a;
     }
 
     footer {
       text-align: center;
-      padding: 26px;
+      padding: 24px;
       border-top: 1px solid var(--border);
       color: #94a3b8;
       font-size: 13px;
@@ -438,194 +324,115 @@
 </head>
 <body>
 
-  <!-- 🌟 全局置顶统一现代导航栏 -->
+  <!-- 🌟 全局置顶统一导航栏 (5大模块) -->
   <header class="app-header">
     <div class="header-inner">
-      <a href="index.html" class="brand-logo" title="返回首页门户">
+      <a href="index.html" class="brand-logo" title="返回首页">
         <span class="flag-icon">🇺🇿</span>
-        <span class="brand-text">O'zbek Tili <span class="brand-sub">乌语学习平台</span></span>
+        <span class="brand-text">Özbek Tili <span class="brand-sub">乌语学习平台</span></span>
       </a>
       <nav class="nav-menu">
         <a href="index.html" class="nav-tab active">
           <span>🏠</span> <span>首页</span>
         </a>
         <a href="vocab.html" class="nav-tab">
-          <span>📚</span> <span>核心词汇</span> <span class="tab-badge">1304</span>
+          <span>📚</span> <span>核心词汇</span>
+        </a>
+        <a href="quiz.html" class="nav-tab">
+          <span>🎮</span> <span>单词测验</span>
         </a>
         <a href="dialogues.html" class="nav-tab">
-          <span>💬</span> <span>实用对话</span> <span class="tab-badge">10</span>
+          <span>💬</span> <span>实用对话</span>
         </a>
         <a href="stories.html" class="nav-tab">
-          <span>📖</span> <span>伴读故事</span> <span class="tab-badge">10</span>
+          <span>📖</span> <span>伴读故事</span>
         </a>
       </nav>
     </div>
   </header>
 
   <div class="container">
-    <!-- Hero 区域 -->
+    <!-- 极简 Hero 区域 -->
     <div class="hero">
-      <div class="hero-badge">🇺🇿 O'zbek Tili · 现代中亚语言沉浸自学工坊</div>
-      <h1>乌兹别克语<span>多维立体自学平台</span></h1>
-      <p>词汇综合检索、日常实用情景对话与中亚文化风情读本三轨并进 · 100% 纯正母语发音伴读</p>
+      <div class="hero-badge">🇺🇿 Özbek Tili</div>
+      <h1>乌兹别克语<span>学习平台</span></h1>
+      <p>专注地道实用的乌兹别克语沉浸式多维学习与文化探索</p>
 
-      <!-- 快捷入口按钮 -->
+      <!-- 简约彩色按键组 (绿、橙、蓝、紫) -->
       <div class="hero-cta-group">
         <a href="vocab.html" class="cta-btn cta-vocab">
-          <span>📚 核心词汇 (1304 词)</span>
+          <span>📚 核心词汇</span>
+          <span>→</span>
+        </a>
+        <a href="quiz.html" class="cta-btn cta-quiz">
+          <span>🎮 单词测验</span>
           <span>→</span>
         </a>
         <a href="dialogues.html" class="cta-btn cta-dialogues">
-          <span>💬 实用对话 (10 大场景)</span>
+          <span>💬 实用对话</span>
           <span>→</span>
         </a>
         <a href="stories.html" class="cta-btn cta-stories">
-          <span>📖 文化读本 (10 篇精选)</span>
+          <span>📖 伴读故事</span>
           <span>→</span>
         </a>
       </div>
-
-      <!-- 统计指标 -->
-      <div class="stats-row">
-        <div class="stat-pill">
-          <span>📚 核心词汇</span>
-          <span class="stat-num">1304 条</span>
-        </div>
-        <div class="stat-pill">
-          <span>🎙️ 双语真声</span>
-          <span class="stat-num">2,600+ 个</span>
-        </div>
-        <div class="stat-pill">
-          <span>💬 实用情景</span>
-          <span class="stat-num">10 大高频对话</span>
-        </div>
-        <div class="stat-pill">
-          <span>📖 文化短文</span>
-          <span class="stat-num">10 部风情读本</span>
-        </div>
-      </div>
     </div>
 
-    <!-- 三大学习模块网格 -->
+    <!-- 4 大核心模块精简网格 -->
     <div class="modules-grid">
-      <!-- 模块 1：核心词汇综合馆 -->
+      <!-- 模块 1：核心词汇馆 -->
       <a href="vocab.html" class="module-card">
-        <div class="card-accent-bar accent-vocab"></div>
-        <div>
-          <div class="card-top">
-            <div class="module-icon-box icon-vocab">📚</div>
-            <span class="module-tag tag-vocab">词汇三位一体</span>
+        <div class="module-card-left">
+          <div class="module-icon icon-vocab">📚</div>
+          <div class="module-info">
+            <h3>核心词汇馆</h3>
+            <p>词汇检索、3D 抽认卡记忆与真人原声磨耳朵连播</p>
           </div>
-          <div class="module-title">核心词汇综合馆</div>
-          <div class="module-desc">涵盖官方大纲与文化读本实战对话精选的 1304 词。纯净简明中文释义与真实语义分类，支持自由跳转任意序号（如 #100 词）、3D 抽认卡滑块与磨耳朵播放起点设定。</div>
-          <ul class="feature-list">
-            <li class="feature-item">
-              <span class="feature-check check-vocab">✓</span>
-              <span>词汇直达：支持任意序号跳转（如直接看 #100 词）与分页调节</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-vocab">✓</span>
-              <span>3D 抽认卡：滑块无缝拖拽翻卡，实时进度与断点记忆</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-vocab">✓</span>
-              <span>自动磨耳朵：自由设定播放起点，实体双语原声循环连播</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-vocab">✓</span>
-              <span>纯净释义：去除多余斜杠赘述，语义清晰分类</span>
-            </li>
-          </ul>
         </div>
-        <div class="module-btn btn-vocab">
-          <span>进入词汇综合馆</span>
-          <span>→</span>
-        </div>
+        <div class="module-arrow">→</div>
       </a>
 
-      <!-- 模块 2：日常实用情景对话馆 -->
+      <!-- 模块 2：单词测验挑战 -->
+      <a href="quiz.html" class="module-card">
+        <div class="module-card-left">
+          <div class="module-icon icon-quiz">🎮</div>
+          <div class="module-info">
+            <h3>单词测验挑战</h3>
+            <p>Quizlet 风格自测，看中文猜乌语，连击挑战与听音纠错</p>
+          </div>
+        </div>
+        <div class="module-arrow">→</div>
+      </a>
+
+      <!-- 模块 3：日常实用对话馆 -->
       <a href="dialogues.html" class="module-card">
-        <div class="card-accent-bar accent-dialogues"></div>
-        <div>
-          <div class="card-top">
-            <div class="module-icon-box icon-dialogues">💬</div>
-            <span class="module-tag tag-dialogues">日常生存必备</span>
+        <div class="module-card-left">
+          <div class="module-icon icon-dialogues">💬</div>
+          <div class="module-info">
+            <h3>日常实用对话</h3>
+            <p>打车、点餐、巴扎等日常出行高频对话，母语原声对白</p>
           </div>
-          <div class="module-title">日常实用情景对话馆</div>
-          <div class="module-desc">针对中亚出行痛点精选 10 大场景！从打车告知司机位置（大门口/路口）与目的地，到餐厅抓饭点餐、巴扎砍价、药店买药、办手机卡，真实 A/B 角色原声对白。</div>
-          <ul class="feature-list">
-            <li class="feature-item">
-              <span class="feature-check check-dialogues">✓</span>
-              <span>10 大高频场景：打车/点餐/巴扎/问路/住宿/药店/手机卡/结识朋友等</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-dialogues">✓</span>
-              <span>真实对话：A/B 角色泡泡对白，单句母语原声跟读点播</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-dialogues">✓</span>
-              <span>点词即查：轻点单词即弹释义卡片，100% 独立发音</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-dialogues">✓</span>
-              <span>生词收藏：一键加星收藏，跨模块同步复习</span>
-            </li>
-          </ul>
         </div>
-        <div class="module-btn btn-dialogues">
-          <span>进入实用对话馆</span>
-          <span>→</span>
-        </div>
+        <div class="module-arrow">→</div>
       </a>
 
-      <!-- 模块 3：文化风情读本馆 -->
+      <!-- 模块 4：文化伴读故事馆 -->
       <a href="stories.html" class="module-card">
-        <div class="card-accent-bar accent-stories"></div>
-        <div>
-          <div class="card-top">
-            <div class="module-icon-box icon-stories">📖</div>
-            <span class="module-tag tag-stories">文化浸润伴读</span>
+        <div class="module-card-left">
+          <div class="module-icon icon-stories">📖</div>
+          <div class="module-info">
+            <h3>文化伴读故事</h3>
+            <p>中亚历史名城与风土民俗篇章，原声伴读与点词即查</p>
           </div>
-          <div class="module-title">文化风情读本馆</div>
-          <div class="module-desc">10 部地道乌兹别克斯坦文化风情读本！领略帖木儿广场、中亚抓饭中心、塔什干地铁、阿芙罗夏勃高铁、布哈拉古城与纳吾肉孜节，配中亚文化插画与卡拉OK伴读。</div>
-          <ul class="feature-list">
-            <li class="feature-item">
-              <span class="feature-check check-stories">✓</span>
-              <span>10 部文化名篇：乌兹别克斯坦历史地标、传统美食与民俗节日</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-stories">✓</span>
-              <span>中亚风情插画：高清文化插画封面，沉浸式视觉体验</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-stories">✓</span>
-              <span>卡拉OK伴读：母语纯正朗读，逐句高亮自动居中滚动</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-stories">✓</span>
-              <span>交互式查词：点击任意词汇即看原形释义与单字发音</span>
-            </li>
-          </ul>
         </div>
-        <div class="module-btn btn-stories">
-          <span>进入文化读本馆</span>
-          <span>→</span>
-        </div>
+        <div class="module-arrow">→</div>
       </a>
-    </div>
-
-    <!-- 自学闭环设计 -->
-    <div class="method-card">
-      <div class="method-icon">🧭</div>
-      <div class="method-content">
-        <h3>多维立体自学闭环：词汇 ＋ 对话 ＋ 读本</h3>
-        <p>语言学习的最高效方式是“地基 ＋ 实战 ＋ 浸润”：先在<strong>【核心词汇馆】</strong>通过 3D 抽认卡与磨耳朵建立高频词反射；在<strong>【实用对话馆】</strong>掌握打车、点餐等生活生存沟通；再在<strong>【文化读本馆】</strong>阅读风情短篇体会丝路文化魅力。遇到生词一键收藏，形成专属复习库，真正实现无死角自主进阶！</p>
-      </div>
     </div>
   </div>
 
   <footer>
-    <p>O'zbek Tili · 乌兹别克语沉浸式多维学习平台 · 适配移动端与桌面全端</p>
+    <p>Özbek Tili · 乌兹别克语学习平台 · 适配移动端与桌面全端</p>
   </footer>
 
 </body>
