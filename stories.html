@@ -583,11 +583,11 @@
     /* 单词点击交互 */
     .story-word {
       cursor: pointer;
-      border-radius: 4px;
-      padding: 1px 2px;
-      margin: 0 1px;
-      transition: all 0.15s;
-      display: inline-block;
+      border-radius: 3px;
+      padding: 0 1px;
+      margin: 0;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      display: inline;
     }
     .story-word:hover {
       background: #e0f2fe;
@@ -599,72 +599,111 @@
       font-weight: 800;
     }
 
-    /* 底部悬浮控制台 */
+    /* 底部极简悬浮播放胶囊 (Sleek Compact Pill) */
     .floating-audio-bar {
       position: fixed;
-      bottom: 20px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
-      width: calc(100% - 40px);
-      max-width: 680px;
-      background: rgba(15, 23, 42, 0.95);
+      width: min(calc(100% - 24px), 360px);
+      box-sizing: border-box;
+      background: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-radius: 20px;
-      padding: 12px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 9999px;
+      padding: 6px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+      gap: 6px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.38), 0 4px 10px rgba(0, 0, 0, 0.2);
       z-index: 1000;
       color: white;
+      user-select: none;
     }
     .player-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 5px;
+      flex-shrink: 0;
     }
     .player-btn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: white;
-      width: 40px;
-      height: 40px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 13.5px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
+      padding: 0;
+      flex-shrink: 0;
+      line-height: 1;
     }
-    .player-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.06); }
+    .player-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+      color: white;
+    }
+    .player-btn:active {
+      transform: scale(0.95);
+    }
+    .player-btn.active {
+      background: rgba(16, 185, 129, 0.28);
+      border-color: #10b981;
+      color: #34d399;
+    }
     .player-btn-main {
-      width: 48px;
-      height: 48px;
-      background: var(--primary);
-      border-color: var(--primary);
-      font-size: 20px;
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: white;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
     .player-btn-main:hover {
-      background: #10b981;
-      transform: scale(1.08);
+      background: linear-gradient(135deg, #34d399, #10b981);
+      transform: scale(1.06);
     }
-    .player-status-text {
-      font-size: 13px;
+    .player-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.16);
+      flex-shrink: 0;
+    }
+    .player-status-badge {
+      font-size: 12px;
       font-weight: 700;
-      color: #94a3b8;
+      color: #cbd5e1;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+      padding: 0 2px;
+      flex-shrink: 0;
     }
     .speed-btn {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 800;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 700;
       cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+    .speed-btn:hover, .speed-btn:active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
     }
 
     /* 单词释义弹窗 */
@@ -877,17 +916,18 @@
       </div>
     </div>
 
-    <!-- 底部悬浮控制台 -->
+    <!-- 底部极简悬浮播放胶囊 (Sleek Compact Pill) -->
     <div class="floating-audio-bar">
       <div class="player-controls">
-        <button class="player-btn" onclick="replayStorySentence()" title="重听本句">⏮️ 重听</button>
-        <button class="player-btn" onclick="prevSentence()" title="上一句">⏮</button>
-        <button class="player-btn player-btn-main" id="playerMainBtn" onclick="togglePlayStory()" title="播放/暂停">▶</button>
-        <button class="player-btn" onclick="nextSentence()" title="下一句">⏭</button>
-        <button class="player-btn" id="btnStoryRepeatMode" onclick="toggleStoryRepeatMode()" title="切换循环模式">🔁 全篇</button>
+        <button class="player-btn" onclick="replayStorySentence()" title="重听本句" aria-label="重听本句">↺</button>
+        <button class="player-btn" onclick="prevSentence()" title="上一句" aria-label="上一句">⏮</button>
+        <button class="player-btn player-btn-main" id="playerMainBtn" onclick="togglePlayStory()" title="播放/暂停" aria-label="播放或暂停">▶</button>
+        <button class="player-btn" onclick="nextSentence()" title="下一句" aria-label="下一句">⏭</button>
+        <button class="player-btn" id="btnStoryRepeatMode" onclick="toggleStoryRepeatMode()" title="循环模式 (全篇连播 / 单句循环)" aria-label="循环模式">🔁</button>
       </div>
-      <div class="player-status-text" id="playerStatusText">准备就绪</div>
-      <button class="speed-btn" id="speedBtn" onclick="toggleSpeed()">1.0x</button>
+      <div class="player-divider"></div>
+      <div class="player-status-badge" id="playerStatusBadge">1 / 10</div>
+      <button class="speed-btn" id="speedBtn" onclick="toggleSpeed()" title="切换语速">1.0x</button>
     </div>
 
     <!-- 单词释义弹窗 -->
@@ -1028,6 +1068,17 @@
       });
 
       highlightSentence(currentSentenceIdx);
+      const totalSent = s.sentences.length;
+      const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
+      if (badge) badge.textContent = `1 / ${totalSent}`;
+      const repeatBtn = document.getElementById('btnStoryRepeatMode');
+      if (repeatBtn) {
+        repeatBtn.textContent = (storyRepeatMode === 'single') ? '🔂' : '🔁';
+        if (storyRepeatMode === 'single') repeatBtn.classList.add('active');
+        else repeatBtn.classList.remove('active');
+      }
+      const mainBtn = document.getElementById('playerMainBtn');
+      if (mainBtn) mainBtn.textContent = '▶';
     }
 
     function formatSentenceWords(text, sIdx) {
@@ -1040,14 +1091,20 @@
           suffix = word.slice(-1) + suffix; word = word.slice(0, -1);
         }
         if (!word) return match;
-        const safe = word.replace(/'/g, "\'");
+        const safe = word.replace(/'/g, "\\'");
         return `${prefix}<span class="story-word" onclick="inspectWord(event, '${safe}', ${sIdx})">${word}</span>${suffix}`;
       });
     }
 
     function inspectWord(e, rawWord, sIdx) {
       if (e) e.stopPropagation();
-      const clean = rawWord.replace(/[^A-Za-z'‘’`ʻ]/g, '').toLowerCase().replace(/['‘’`ʻ]/g, "_");
+      const clean = rawWord.toLowerCase()
+        .replace(/ö/g, 'o_')
+        .replace(/ğ/g, 'g_')
+        .replace(/ş/g, 'sh')
+        .replace(/ç/g, 'ch')
+        .replace(/['‘’`ʻ]/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
 
       document.querySelectorAll('.story-word.selected').forEach(el => el.classList.remove('selected'));
       if (e && e.target) e.target.classList.add('selected');
@@ -1081,11 +1138,7 @@
       const key = activeInspectWordData.cleanKey;
       const audio = new Audio(`audio/words/${key}.mp3`);
       audio.onerror = () => {
-        if ('speechSynthesis' in window) {
-          const u = new SpeechSynthesisUtterance(activeInspectWordData.lemma);
-          u.lang = 'uz-UZ';
-          window.speechSynthesis.speak(u);
-        }
+        showToast('🔈 暂无该单词独立原声录音');
       };
       audio.play().catch(() => {});
     }
@@ -1145,7 +1198,8 @@
         span.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       const total = STORIES_DATA[currentStoryIdx].sentences.length;
-      document.getElementById('playerStatusText').textContent = `伴读中: ${idx + 1} / ${total}`;
+      const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
+      if (badge) badge.textContent = `${idx + 1} / ${total}`;
     }
 
     function playSpecificSentence(idx) {
@@ -1185,13 +1239,15 @@
       const btn = document.getElementById('btnStoryRepeatMode');
       if (btn) {
         if (storyRepeatMode === 'single') {
-          btn.innerHTML = '🔂 单句循环';
+          btn.textContent = '🔂';
           btn.classList.add('active');
+          btn.title = "当前模式：单句循环（点击切换全篇连播）";
           showToast('🔂 已开启【单句循环】模式');
         } else {
-          btn.innerHTML = '🔁 全文连播';
+          btn.textContent = '🔁';
           btn.classList.remove('active');
-          showToast('🔁 已开启【全文连播】模式');
+          btn.title = "当前模式：全篇连播（点击切换单句循环）";
+          showToast('🔁 已开启【全篇连播】模式');
         }
       }
     }
@@ -1201,7 +1257,6 @@
       showToast('⏮️ 正在重听本句');
     }
 
-    
     function pauseStoryPlay() {
       if (storyAudio) storyAudio.pause();
       storyPlaying = false;
@@ -1229,7 +1284,7 @@
       updateStoryMediaSession(s, sent, currentSentenceIdx);
 
       storyAudio.src = sent.audio;
-      storyAudio.playbackRate = storySpeed;
+      storyAudio.playbackRate = storySpeed || 1.0;
 
       storyAudio.onended = () => {
         if (!storyPlaying) return;
@@ -1245,7 +1300,8 @@
             playCurrentSentence();
           } else {
             pauseStoryPlay();
-            document.getElementById('playerStatusText').textContent = '本篇已播完 · 点击重听';
+            const badge = document.getElementById('playerStatusBadge') || document.getElementById('playerStatusText');
+            if (badge) badge.textContent = '完 ↺';
           }
         }
       };
