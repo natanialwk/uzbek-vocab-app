@@ -7,10 +7,15 @@ BASE_DIR = os.path.dirname(__file__)
 AUDIO_DIR = os.path.join(BASE_DIR, "audio")
 VOCAB_FILE = os.path.join(BASE_DIR, "vocab.html")
 STORIES_FILE = os.path.join(BASE_DIR, "stories.html")
+DIALOGUES_FILE = os.path.join(BASE_DIR, "dialogues.html")
+
 VOICE_UZ = "uz-UZ-MadinaNeural"
 VOICE_CN = "zh-CN-XiaoxiaoNeural"
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(os.path.join(AUDIO_DIR, "dialogues"), exist_ok=True)
+os.makedirs(os.path.join(AUDIO_DIR, "stories"), exist_ok=True)
+os.makedirs(os.path.join(AUDIO_DIR, "words"), exist_ok=True)
 
 def clean_cn(t):
     if not t:
@@ -22,12 +27,11 @@ def clean_cn(t):
 
 async def main():
     import edge_tts
+    semaphore = asyncio.Semaphore(10)
 
+    # 1. Vocab Audio
     with open(VOCAB_FILE, "r", encoding="utf-8") as f:
         vocab_html = f.read()
-
-    with open(STORIES_FILE, "r", encoding="utf-8") as f:
-        stories_html = f.read()
 
     m = re.search(r'const DEFAULT_VOCAB\s*=\s*(\[.*?\]);', vocab_html, re.DOTALL)
     if not m:
@@ -37,24 +41,19 @@ async def main():
     vocab = json.loads(m.group(1))
     print(f"Total vocabulary items: {len(vocab)} (Uzbek + Chinese)")
 
-    semaphore = asyncio.Semaphore(10)
-    success_uz = 0
-    skip_uz = 0
-    success_cn = 0
-    skip_cn = 0
-
     async def generate_single(text, voice, out_file):
+        if os.path.exists(out_file) and os.path.getsize(out_file) > 400:
+            return True
         for attempt in range(4):
             try:
                 communicate = edge_tts.Communicate(text, voice)
                 await communicate.save(out_file)
                 return True
-            except Exception as e:
+            except Exception:
                 await asyncio.sleep(0.4 * (attempt + 1))
         return False
 
-    async def worker(item):
-        nonlocal success_uz, skip_uz, success_cn, skip_cn
+    async def v_worker(item):
         no = item.get("no")
         word_uz = item.get("uzbek")
         raw_cn = item.get("chinese", "")
@@ -63,32 +62,23 @@ async def main():
             return
 
         out_uz = os.path.join(AUDIO_DIR, f"{no}.mp3")
-        if os.path.exists(out_uz) and os.path.getsize(out_uz) > 500:
-            skip_uz += 1
-        elif word_uz:
+        if word_uz:
             async with semaphore:
-                ok = await generate_single(word_uz, VOICE_UZ, out_uz)
-                if ok:
-                    success_uz += 1
+                await generate_single(word_uz, VOICE_UZ, out_uz)
 
         out_cn = os.path.join(AUDIO_DIR, f"{no}_cn.mp3")
-        if os.path.exists(out_cn) and os.path.getsize(out_cn) > 500:
-            skip_cn += 1
-        elif word_cn:
+        if word_cn:
             async with semaphore:
-                ok = await generate_single(word_cn, VOICE_CN, out_cn)
-                if ok:
-                    success_cn += 1
+                await generate_single(word_cn, VOICE_CN, out_cn)
 
-    tasks = [worker(item) for item in vocab]
-    await asyncio.gather(*tasks)
+    await asyncio.gather(*[v_worker(item) for item in vocab])
+    print("Vocab audio check completed.")
 
-    print(f"Finished vocab! Uzbek: (New: {success_uz}, Existing: {skip_uz}) | Chinese: (New: {success_cn}, Existing: {skip_cn})")
+    # 2. Dialogues Audio
+    with open(DIALOGUES_FILE, "r", encoding="utf-8") as f:
+        dialogues_html = f.read()
 
-    # 3. Dialogues Audio
-    d_dir = os.path.join(AUDIO_DIR, "dialogues")
-    os.makedirs(d_dir, exist_ok=True)
-    m_dialogues = re.search(r'const DIALOGUES_DATA\s*=\s*(\[.*?\]);', stories_html, re.DOTALL)
+    m_dialogues = re.search(r'const DIALOGUES_DATA\s*=\s*(\[.*?\]);', dialogues_html, re.DOTALL)
     if m_dialogues:
         dialogues = json.loads(m_dialogues.group(1))
         d_tasks = []
@@ -101,23 +91,49 @@ async def main():
                     continue
                 text = sent.get("uzbek")
                 if text:
-                    async def d_worker(t, p):
+                    async def d_worker(t=text, p=out_d):
                         async with semaphore:
                             await generate_single(t, VOICE_UZ, p)
-                    d_tasks.append(d_worker(text, out_d))
+                    d_tasks.append(d_worker())
         if d_tasks:
             await asyncio.gather(*d_tasks)
             print(f"Generated {len(d_tasks)} new dialogue sentence audio files.")
         else:
-            print("All dialogue sentence audio files already up-to-date.")
+            print("All dialogue sentence audio files up-to-date.")
+
+    # 3. Stories Audio
+    with open(STORIES_FILE, "r", encoding="utf-8") as f:
+        stories_html = f.read()
+
+    m_stories = re.search(r'const STORIES_DATA\s*=\s*(\[.*?\]);', stories_html, re.DOTALL)
+    if m_stories:
+        stories = json.loads(m_stories.group(1))
+        s_tasks = []
+        for s in stories:
+            for sent in s.get("sentences", []):
+                rel_path = sent.get("audio")
+                if not rel_path: continue
+                out_s = os.path.join(BASE_DIR, rel_path)
+                if os.path.exists(out_s) and os.path.getsize(out_s) > 400:
+                    continue
+                text = sent.get("uzbek")
+                if text:
+                    async def s_worker(t=text, p=out_s):
+                        async with semaphore:
+                            await generate_single(t, VOICE_UZ, p)
+                    s_tasks.append(s_worker())
+        if s_tasks:
+            await asyncio.gather(*s_tasks)
+            print(f"Generated {len(s_tasks)} new story sentence audio files.")
+        else:
+            print("All story sentence audio files up-to-date.")
 
     # 4. Words Audio
-    words_dir = os.path.join(AUDIO_DIR, "words")
-    os.makedirs(words_dir, exist_ok=True)
-    m_lemmas = re.search(r'const LEMMA_MAP\s*=\s*(\{.*?\});', stories_html, re.DOTALL)
+    m_lemmas = re.search(r'const LEMMA_MAP\s*=\s*(\{.*?\});', dialogues_html, re.DOTALL)
     if m_lemmas:
         lemmas = json.loads(m_lemmas.group(1))
-        word_tasks = []
+        words_dir = os.path.join(AUDIO_DIR, "words")
+        w_tasks = []
         for k, v in lemmas.items():
             lemma = v.get("lemma")
             clean_key = re.sub(r"[^a-zA-Z0-9_\x27]", "", k.lower()).replace("\x27", "_")
@@ -125,15 +141,15 @@ async def main():
             if os.path.exists(out_word) and os.path.getsize(out_word) > 400:
                 continue
             if lemma:
-                async def w_worker(t, p):
+                async def w_worker(t=lemma, p=out_word):
                     async with semaphore:
                         await generate_single(t, VOICE_UZ, p)
-                word_tasks.append(w_worker(lemma, out_word))
-        if word_tasks:
-            await asyncio.gather(*word_tasks)
-            print(f"Generated {len(word_tasks)} new dialogue word audio files.")
+                w_tasks.append(w_worker())
+        if w_tasks:
+            await asyncio.gather(*w_tasks)
+            print(f"Generated {len(w_tasks)} new dialogue word audio files.")
         else:
-            print("All dialogue word audio files already up-to-date.")
+            print("All dialogue word audio files up-to-date.")
 
 if __name__ == "__main__":
     asyncio.run(main())
